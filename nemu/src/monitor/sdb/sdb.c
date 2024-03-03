@@ -49,7 +49,8 @@ static int cmd_c(char *args) {
 
 
 static int cmd_q(char *args) {
-  return 0;
+
+  return -1;
 }
 
 static int cmd_help(char *args);
@@ -108,6 +109,8 @@ void sdb_mainloop() {
     /* extract the first token as the command */
     char *cmd = strtok(str, " ");
     if (cmd == NULL) { continue; }
+
+    //if (*cmd == -1 ){ return ;}
 
     /* treat the remaining string as the arguments,
      * which may need further parsing
