@@ -10,3 +10,6 @@
 !Kconfig
 include/config
 include/generated
+
+# 自行添加
+!*.md
