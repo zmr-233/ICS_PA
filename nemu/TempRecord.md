@@ -128,6 +128,15 @@ Makefile的编译规则在`nemu/scripts/build.mk`中定义
 ### 2.NEMU主程序
 
 1. 内置客户程序位于 `nemu/src/isa/$ISA/init.c`中
-2. 内存位于`nemu/src/memory/paddr.c`定义的128MB的`pmem`数组(静态段)
+2. 内存通过在nemu/src/memory/paddr.c中定义的大数组pmem来模拟的128MB的`pmem`数组(静态段)
+   总是使用vaddr_read()和vaddr_write()(在nemu/src/memory/vaddr.c中定义)来访问模拟的内存
+   vaddr, paddr分别代表虚拟地址和物理地址
 3. 约定：客户程序的位置---读入到固定的内存位置:`nemu/include/memory/paddr.h`定义`RESET_VECTOR`
 4. 寄存器结构体定义CPU_state:`nemu/src/isa/$ISA/include/isa-def.h`，并在`nemu/src/cpu/cpu-exec.c`中定义一个全局变量cpu(cpu.pc就是寄存器)
+5. TRM的工作方式通过cpu_exec()和exec_once()体现
+
+#### 三个调试宏
+
+- `Log()`是printf()的升级版, 专门用来输出调试信息, 同时还会输出使用Log()所在的源文件, 行号和函数. 当输出的调试信息过多的时候, 可以很方便地定位到代码中的相关位置
+- `Assert()`是assert()的升级版, 当测试条件为假时, 在assertion fail之前可以输出一些信息
+- `panic()`用于输出信息并结束程序, 相当于无条件的assertion fail

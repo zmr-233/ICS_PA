@@ -42,18 +42,71 @@ static char* rl_gets() {
   return line_read;
 }
 
-static int cmd_c(char *args) {
-  cpu_exec(-1);
+
+
+
+//1.帮助(1)---打印命令的帮助信息
+static int cmd_help(char *args){
   return 0;
 }
 
+//2.继续运行(1) c
+static int cmd_c(char *args) {
+  cpu_exec(-1); //进入指令执行的主循环
+  return 0;
+}
+
+//3.退出(1)
 extern NEMUState nemu_state;
 static int cmd_q(char *args) {
   nemu_state.state = NEMU_QUIT;
   return -1;
 }
 
-static int cmd_help(char *args);
+//4.单步执行
+/*si [N] 让程序单步执行N条指令后暂停执行, 当N没有给出时, 缺省为1*/
+static int cmd_si(char* args){
+
+}
+
+//5.打印程序状态
+/* info w 打印监视点信息/info r打印寄存器状态*/
+extern void isa_reg_display(void); //打印所有寄存器API
+static int cmd_info(char* args){
+
+}
+
+//6.扫描内存(2)
+/*x N EXPR 求出表达式EXPR的值, 将结果作为起始内存地址
+x 10 $esp 以十六进制形式输出连续的N个4字节*/
+static int cmd_x(char* args){
+
+}
+
+//7.表达式求值
+/*p EXPR 求出表达式EXPR的值, EXPR支持的运算请见调试中的表达式求值小节
+https://nju-projectn.github.io/ics-pa-gitbook/ics2024/1.6.html
+p $eax + 1*/
+static int cmd_p(char* args){
+
+}
+
+//8.设置监视点
+/*w EXPR 当表达式EXPR的值发生变化时,暂停程序执行
+w *0x2000*/
+static int cmd_w(char* args){
+
+}
+
+//9.删除监视点 d N 删除序号为N的监视点
+static int cmd_d(char* args){
+
+}
+
+/*
+函数，是通过cmd_table[i](..)调用的
+*/
+
 
 static struct {
   const char *name;
@@ -62,7 +115,7 @@ static struct {
 } cmd_table [] = {
   { "help", "Display information about all supported commands", cmd_help },
   { "c", "Continue the execution of the program", cmd_c },
-  { "q", "Exit NEMU", cmd_q },
+  { "q", "Exit NEMU", cmd_q }, 
 
   /* TODO: Add more commands */
 

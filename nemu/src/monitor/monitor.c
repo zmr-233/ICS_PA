@@ -118,13 +118,23 @@ void init_monitor(int argc, char *argv[]) {
   IFDEF(CONFIG_DEVICE, init_device());
 
   /* Perform ISA dependent initialization. */
-  init_isa();
+  init_isa(); /*
+  执行两项工作:
+
+  1.将内置的客户程序读入到内存中
+
+  2.初始寄存器，通过restart()函数实现
+寄存器结构体CPU_state的定义放在nemu/src/isa/$ISA/include/isa-def.h中, 
+并在nemu/src/cpu/cpu-exec.c中定义一个全局变量cpu. 
+初始化寄存器的一个重要工作就是设置cpu.pc的初值
+  */
 
   /* Load the image to memory. This will overwrite the built-in image. */
   long img_size = load_img();
 
   /* Initialize differential testing. */
   init_difftest(diff_so_file, img_size, difftest_port);
+  //会将一个有意义的客户程序从镜像文件读入到内存, 覆盖刚才的内置客户程序
 
   /* Initialize the simple debugger. */
   init_sdb();

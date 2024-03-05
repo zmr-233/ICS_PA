@@ -1,5 +1,13 @@
 # 学习到的各种技巧
 
+## Linux指令
+
+```bash
+sudo dmesg #查看linux启动日志
+```
+
+---
+
 ## GIT技巧
 
 ### |技巧:.gitignore
