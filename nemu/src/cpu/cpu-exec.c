@@ -70,12 +70,12 @@ static void exec_once(Decode *s, vaddr_t pc) {
 #endif
 #endif
 }
-
 static void execute(uint64_t n) {
   Decode s;
   for (;n > 0; n --) {
     exec_once(&s, cpu.pc); //让CPU执行当前PC指向的一条指令, 然后更新PC.
     g_nr_guest_inst ++;
+    if(n % 1000==0) isa_reg_display();//打印寄存器状态
     trace_and_difftest(&s, cpu.pc);
     if (nemu_state.state != NEMU_RUNNING) break;
     IFDEF(CONFIG_DEVICE, device_update());
