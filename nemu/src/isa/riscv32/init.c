@@ -12,7 +12,7 @@
 *
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
-
+//这里面是客户程序:
 #include <isa.h>
 #include <memory/paddr.h>
 

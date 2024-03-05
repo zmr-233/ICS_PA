@@ -126,3 +126,8 @@ Makefile的编译规则在`nemu/scripts/build.mk`中定义
 ---
 
 ### 2.NEMU主程序
+
+1. 内置客户程序位于 `nemu/src/isa/$ISA/init.c`中
+2. 内存位于`nemu/src/memory/paddr.c`定义的128MB的`pmem`数组(静态段)
+3. 约定：客户程序的位置---读入到固定的内存位置:`nemu/include/memory/paddr.h`定义`RESET_VECTOR`
+4. 寄存器结构体定义CPU_state:`nemu/src/isa/$ISA/include/isa-def.h`，并在`nemu/src/cpu/cpu-exec.c`中定义一个全局变量cpu(cpu.pc就是寄存器)
