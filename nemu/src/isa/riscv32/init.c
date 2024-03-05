@@ -28,6 +28,7 @@ HIT GOOD TRAP - 客户程序正确地结束执行
 HIT BAD TRAP - 客户程序错误地结束执行
 ABORT - 客户程序意外终止, 并未结束执行
 */
+//客户程序如下:
 static const uint32_t img [] = {
   0x00000297,  // auipc t0,0
   0x00028823,  // sb  zero,16(t0)

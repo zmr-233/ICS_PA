@@ -24,6 +24,24 @@
 typedef concat(__GUEST_ISA__, _CPU_state) CPU_state;
 typedef concat(__GUEST_ISA__, _ISADecodeInfo) ISADecodeInfo;
 
+//这两个宏展开后：实际上的CPU_state依赖于实现:
+//定义位于src/isa/riscv32/include/isa-def.h
+/*
+typedef struct {
+  word_t gpr[MUXDEF(CONFIG_RVE, 16, 32)];
+  vaddr_t pc;
+} MUXDEF(CONFIG_RV64, riscv64_CPU_state, riscv32_CPU_state);
+//展开: riscv32_CPU_state
+
+// decode
+typedef struct {
+  union {
+    uint32_t val;
+  } inst;
+} MUXDEF(CONFIG_RV64, riscv64_ISADecodeInfo, riscv32_ISADecodeInfo); 
+//展开: riscv32_ISADecodeInfo
+*/
+
 // monitor
 extern unsigned char isa_logo[];
 void init_isa();

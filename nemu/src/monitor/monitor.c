@@ -109,7 +109,7 @@ void init_monitor(int argc, char *argv[]) {
   init_rand();
 
   /* Open the log file. */
-  init_log(log_file);
+  init_log(log_file); //case 'l': log_file = optarg; break;
 
   /* Initialize memory. */
   init_mem();

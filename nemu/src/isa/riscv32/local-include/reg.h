@@ -30,4 +30,10 @@ static inline const char* reg_name(int idx) {
   return regs[check_reg_idx(idx)];
 }
 
+//新补充: 用于读取描述
+static inline const char* reg_desp(int idx) {
+  extern const char* desp[];
+  return desp[check_reg_idx(idx)];
+}
+
 #endif

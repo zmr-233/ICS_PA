@@ -35,12 +35,12 @@
 #define PMEM64 1
 #endif
 
-typedef MUXDEF(CONFIG_ISA64, uint64_t, uint32_t) word_t;
-typedef MUXDEF(CONFIG_ISA64, int64_t, int32_t)  sword_t;
+typedef MUXDEF(CONFIG_ISA64, uint64_t, uint32_t) word_t; //uint32_t
+typedef MUXDEF(CONFIG_ISA64, int64_t, int32_t)  sword_t; //int32_t
 #define FMT_WORD MUXDEF(CONFIG_ISA64, "0x%016" PRIx64, "0x%08" PRIx32)
 
-typedef word_t vaddr_t;
-typedef MUXDEF(PMEM64, uint64_t, uint32_t) paddr_t;
+typedef word_t vaddr_t; //虚拟地址
+typedef MUXDEF(PMEM64, uint64_t, uint32_t) paddr_t; //物理地址
 #define FMT_PADDR MUXDEF(PMEM64, "0x%016" PRIx64, "0x%08" PRIx32)
 typedef uint16_t ioaddr_t;
 
