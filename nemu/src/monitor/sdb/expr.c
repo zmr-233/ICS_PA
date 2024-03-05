@@ -111,7 +111,15 @@ static bool make_token(char *e) {
   return true;
 }
 
+/*
 
+char *e：这是一个指向字符数组（字符串）的指针，它包含了需要被求值的表达式。
+bool *success：这是一个指向布尔值的指针，用来指示表达式是否成功求值。如果表达式成功求值，这个指针指向的值将被设置为 true；如果求值过程中发生错误（例如，表达式语法不正确），则设置为 false。
+
+1.make_token(e)：这个函数看起来是用来对输入的表达式字符串 e 进行词法分析（tokenization），将其分解成一系列的令牌（tokens）
+
+expr 函数的目标是实现一个表达式求值器，但是目前的代码只是一个框
+*/
 word_t expr(char *e, bool *success) {
   if (!make_token(e)) {
     *success = false;

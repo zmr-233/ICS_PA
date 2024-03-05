@@ -74,7 +74,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
 static void execute(uint64_t n) {
   Decode s;
   for (;n > 0; n --) {
-    exec_once(&s, cpu.pc);
+    exec_once(&s, cpu.pc); //让CPU执行当前PC指向的一条指令, 然后更新PC.
     g_nr_guest_inst ++;
     trace_and_difftest(&s, cpu.pc);
     if (nemu_state.state != NEMU_RUNNING) break;
@@ -97,6 +97,10 @@ void assert_fail_msg() {
 }
 
 /* Simulate how the CPU works. */
+/*
+传入-1--由于无符号，将按照处理一个巨大的数目来执行指令
+n = 0xFFFFFFFFFFFFFFFF
+*/
 void cpu_exec(uint64_t n) {
   g_print_step = (n < MAX_INST_TO_PRINT);
   switch (nemu_state.state) {
@@ -108,7 +112,7 @@ void cpu_exec(uint64_t n) {
 
   uint64_t timer_start = get_time();
 
-  execute(n);
+  execute(n);//模拟了CPU的工作,不断执行指令
 
   uint64_t timer_end = get_time();
   g_timer += timer_end - timer_start;
