@@ -277,3 +277,148 @@ int main(int argc, char* argv[]){
 - **特殊情况**: "case 0:"意味着在long_options中,既没有指定flag也没有val,此时依赖于`.name`去解析; "case 1:"意味着`*shortopts`至少指定了诸如`-abc:`的`-`, 说明是**处理非选项参数的情况**，比如考虑如下场景:`./test -b --log logfile.txt imagefile.img` 其中的`iamgefile.img`就对应于case 1
 
 ---
+
+## 4.readline库---bash的同款命令行读取
+
+### 4.1基础使用
+
+该readline库被广泛用于mail,ftp,sh等命令行参数的解析:因为readline.h中的一些定义使用了stdio库，所以文件<stdio.h>应该包含在readline.h之前[链接地址](https://tiswww.case.edu/php/chet/readline/readline.html#Programming-with-GNU-Readline)
+
+- 可以放入一行的提示词prompt
+- 返回值是内部使用malloc()申请，意味着必须要在外部调用free释放
+- 返回的只有文本,换行符被去除了
+- 如果接收到EOF,就会返回(char*)NULL
+- 使用`add_history`能够加入历史，但是**尽量不要把NULL加入历史**
+- TAB默认是补充文件名称的
+
+```c
+char *readline (const char *prompt); //主要读取函数
+add_history (line); //添加到可读写历史中
+int rl_bind_key (int key, rl_command_func_t *function); //绑定按键的函数
+/*key是要绑定的字符，function是按下键时要调用的函数的地址
+rl_bind_key ('\t', rl_insert);禁用默认标签行为
+该代码应该在程序开始时执行一次,可以编写一个名为 的函数initialize_readline()来执行此初始化和其他所需的初始化
+*/
+```
+
+```c
+#include <readline/readline.h>
+#include <readline/history.h>
+static char *line_read = (char *)NULL; //用一个static去进行处理
+char * rl_gets (){//EOF为NULL,其余返回地址
+  if (line_read){ 
+      free (line_read); //如果被使用，请进行释放
+      line_read = (char *)NULL;
+    }
+  line_read = readline ("(bash) $ ");//提示符
+  if (line_read && *line_read)
+    add_history (line_read); //存入历史中
+  return (line_read);
+}
+```
+
+### 4.2自定义补全
+
+见相关博客[略](https://www.cnblogs.com/hazir/p/instruction_to_readline.html)
+
+---
+
+## 5.str字符串函数
+
+|如何获取字符串相关函数: 使用`man 3 str<tab><tab>`就可以查看库函数中的str字符串处理函数
+
+以下是一个使用Markdown格式的表，其中列出了上述函数及其简短的中文介绍：
+
+| 函数名 | 描述 | 函数名 | 描述 |
+| ------ | ---- | ------ | ---- |
+| `strcasecmp` | 忽略大小写比较字符串 | `strcasestr` | 忽略大小写查找子串 |
+| `strcat` | 连接两个字符串 | `strchr` | 查找字符在字符串中首次出现的位置 |
+| `strchrnul` | 查找字符在字符串中首次出现的位置，若未找到返回字符串尾后null | `strcmp` | 比较两个字符串 |
+| `strcoll` | 根据程序当前的locale比较两个字符串 | `strcpy` | 复制字符串 |
+| `strcspn` | 计算两字符串中首个共同字符前的字符数 | `strdup` | 复制字符串，使用malloc分配内存 |
+| `strdupa` | 复制字符串，使用alloca分配内存 | `strerror` | 返回错误码对应的错误信息 |
+| `strerrordesc_np` | 返回错误码对应的错误描述 | `strerror_l` | 返回错误码对应的本地化错误信息 |
+| `strerrorname_np` | 返回错误码对应的宏名称 | `strfmon` | 格式化货币字符串 |
+| `strfmon_l` | 格式化货币字符串（本地化） | `strfromd` | 将double类型数字转换为字符串 |
+| `strfromf` | 将float类型数字转换为字符串 | `strfroml` | 将long double类型数字转换为字符串 |
+| `strfry` | 随机排列字符串 | `strftime` | 格式化时间 |
+| `string` | 处理字符串数组的函数 | `string_to_av_perm` | 将字符串转换为访问向量权限 |
+| `string_to_security_class` | 将字符串转换为安全类 | `strncasecmp` | 忽略大小写比较两个字符串的前n个字符 |
+| `strncat` | 连接两个字符串的前n个字符 | `strncmp` | 比较两个字符串的前n个字符 |
+| `strncpy` | 复制指定长度的字符串 | `strndup` | 复制指定长度的字符串，使用malloc分配内存 |
+| `strndupa` | 复制指定长度的字符串，使用alloca分配内存 | `strnlen` | 获取字符串的长度，最大为指定值 |
+| `strpbrk` | 在字符串中查找任何一个指定的字符 | `strptime` | 解析时间字符串 |
+| `strrchr` | 查找字符在字符串中最后一次出现的位置 | `strsep` | 分割字符串 |
+| `strsignal` | 返回信号码对应的信号描述 | `strspn` | 计算字符串开头连续包含指定字符集内字符的最大长度 |
+| `strstr` | 查找子串在字符串中首次出现的位置 | `strtod` | 将字符串转换为double类型 |
+| `strtof` | 将字符串转换为float类型 | `strtoimax` | 将字符串转换为最大整数类型 |
+| `strtok` | 分割字符串 | `strtok_r` | 线程安全的分割字符串 |
+| `strtol` | 将字符串转换为long整型 | `strtold` | 将字符串转换为long double类型 |
+| `strtoll` | 将字符串转换为long long整型 | `strtoq` | 将字符串转换为quad_t类型 |
+| `strtoul` | 将字符串转换为无符号long整型 | `strtoull` | 将字符串转换为无符号long long整型 |
+| `strtoumax` | 将字符串转换为最大无符号整数类型 | `strtouq` | 将字符串转换为无符号quad_t类型 |
+| `strverscmp` | 比较两个版本排序字符串 | `strxfrm` | 根据当前locale转换字符串以进行比较 |
+
+请注意，一些函数可能如`strdupa`和`strndupa`是GNU C库的扩展，不是标准C的一部分
+
+### 1.strtok分割字符串(分割参数)
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+int main(int argc, char *argv[]) {
+    char *str1, *str2, *token, *subtoken;
+    char *saveptr1, *saveptr2;
+    int j = 1;
+    for (str1 = argv[1]; ; j++, str1 = NULL) {
+        token = strtok_r(str1, argv[2], &saveptr1);
+        if (token == NULL) break;
+        printf("%d: %s\n", j, token);
+
+        for (str2 = token; ; str2 = NULL) {
+            subtoken = strtok_r(str2, argv[3], &saveptr2);
+            if (subtoken == NULL) break;
+            printf(" --> %s\n", subtoken);
+        }
+    }
+}/*$ ./a.out 'a/bbb///cc;xxx:yyy:' ':;' '/'
+1: a/bbb///cc   2: xxx        3: yyy
+        --> a      --> xxx       --> yyy
+        --> bbb
+        --> cc */
+```
+
+strtok()能够根据delimit(定界符)参数，把该定界符替换为'\0'，并返回对应位置的指针。其原理是在内部有一个buf，能够存储传入的字符串+上次的指针，因此调用应该使用：
+
+- 连续调用strtok才能获得一连串token，但是第二次调用开始，必须传入NULL，否则会覆盖原字符串
+- 由于采用静态buf，因此有strtok_r, 使用外部指针saveptr来保存，可以多线程使用
+
+```c
+char* strtok(char* str, const char*delim);
+    token1 = strtok(str,",;"); //第一次调用: 必须是非NULL
+    token2 = strtok(NULL,",;"); // 第二次调用: 必须是NULL
+char* strtok_r(char* str,const cahr *delim, char **seveptr); //线程安全-可重入
+```
+
+---
+
+## 6.C其他函数
+
+### 6.1 sscanf()从字符串(流)读取格式化数据
+
+相比起scanf从流中读取，sscanf则是从字符串中根据格式化字符串进行读取，原型如下:
+
+```c
+int sscanf(const char* str, const char* format,...);//使用举例:
+int day, year;
+char weekday[20], month[20], dtm[100];
+strcpy( dtm, "Saturday March 25 1989" ); //从这个字符串里读取数据
+sscanf( dtm, "%s %s %d  %d", weekday, month, &day, &year );
+printf("%s %d, %d = %s\n", month, day, year, weekday );
+
+```
+
+---
+
+## 7.

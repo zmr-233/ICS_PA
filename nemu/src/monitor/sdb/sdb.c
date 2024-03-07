@@ -72,14 +72,15 @@ static int cmd_info(char* args){
   return 0;
 }
 
-#ifdef NEXTUSE
 //6.扫描内存(2)
 /*x N EXPR 求出表达式EXPR的值, 将结果作为起始内存地址
 x 10 $esp 以十六进制形式输出连续的N个4字节*/
 static int cmd_x(char* args){
-
+  printf("|%s|",args);
   return 0;
 }
+
+#ifdef NEXTUSE
 
 //7.表达式求值
 /*p EXPR 求出表达式EXPR的值, EXPR支持的运算请见调试中的表达式求值小节
@@ -120,6 +121,7 @@ static struct {
   { "q", "Exit NEMU", cmd_q }, 
   //TEMP:
   { "i", "Info Register", cmd_info }, 
+  { "x", "Scan Memory", cmd_x },
 
   /* TODO: Add more commands */
 
@@ -150,8 +152,6 @@ static int cmd_help(char *args) {
   }
   return 0;
 }
-
-
 
 
 
