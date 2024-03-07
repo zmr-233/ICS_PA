@@ -77,11 +77,11 @@ static int cmd_info(char* args){
 x 10 $esp 以十六进制形式输出连续的N个4字节*/
 static int cmd_x(char* args){
   if(args == NULL) { puts("No arguments"); return 0;}
-  char *str1, *str2, *saveptr;
+  char *str1, *str2, *str3, *saveptr;
   str1 = strtok_r(args, " ", &saveptr);
   str2 = strtok_r(NULL, " ", &saveptr);
   if(str1 == NULL || str2 == NULL) { puts("Invalid arguments"); return 0;}
-  if(strtok_r(NULL, " ", &saveptr) != NULL)  printf("Too many arguments :%s",saveptr);
+  if((str3 = strtok_r(NULL, " ", &saveptr)) != NULL)  printf("Too many arguments :%s",str3);
   puts("cmd_x");
 
   
