@@ -81,10 +81,14 @@ static int cmd_x(char* args){
   str1 = strtok_r(args, " ", &saveptr);
   str2 = strtok_r(NULL, " ", &saveptr);
   if(str1 == NULL || str2 == NULL) { puts("Invalid arguments"); return 0;}
-  if((str3 = strtok_r(NULL, " ", &saveptr)) != NULL)  printf("Too many arguments :%s",str3);
-  puts("cmd_x");
+  if((str3 = strtok_r(NULL, " ", &saveptr)) != NULL)  printf("Too many arguments :%s\n",str3);
 
-  
+  int N;
+  sscanf(str1, "%d", &N);
+  //vaddr_t addr = expr(str2, NULL);
+  vaddr_t addr;
+  sscanf(str2, "%x", &addr);
+  printf("%d -- 0x%x\n",N, addr);
   return 0;
 }
 
