@@ -20,7 +20,7 @@
 
 typedef struct {
   word_t gpr[MUXDEF(CONFIG_RVE, 16, 32)]; //gpr[32]有32个寄存器
-  vaddr_t pc; //这是内存吗？？？
+  vaddr_t pc; //这是内存
 } MUXDEF(CONFIG_RV64, riscv64_CPU_state, riscv32_CPU_state);
 //展开: riscv32_CPU_state
 
