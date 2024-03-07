@@ -76,7 +76,9 @@ static int cmd_info(char* args){
 /*x N EXPR 求出表达式EXPR的值, 将结果作为起始内存地址
 x 10 $esp 以十六进制形式输出连续的N个4字节*/
 static int cmd_x(char* args){
-  printf("|%s|\n",args);
+  if(strcmp(args,"(null)")==0) {printf("Null arguments\n"); return 0;}
+
+
   return 0;
 }
 
