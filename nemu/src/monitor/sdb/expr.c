@@ -154,6 +154,7 @@ void print_tokens(){
 }
 
 word_t expr(char *e, bool *success) {
+  Log("%s",e);
   if (!make_token(e)) {
     *success = false;
     return 0;
