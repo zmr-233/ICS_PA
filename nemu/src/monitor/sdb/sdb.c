@@ -91,16 +91,17 @@ static int cmd_x(char* args){
   str3 = strtok_r(NULL, "\"", &saveptr);
   Log("str3 = %s",str3);
   if((str4=strtok_r(NULL, " ", &saveptr)) != NULL) {printf("Too many arguments :%s\n",str3); return 0;}
+  
+  int N; sscanf(str1, "%d", &N);
+  bool success=false; vaddr_t addr = 0;
+  if(str2 != str3)  addr = expr(str3, &success);
+  else addr = sscanf(str2, "%d", &addr);
 
-  int N;
-  sscanf(str1, "%d", &N);
-  bool success=false;
-  vaddr_t addr = expr(str2, &success);
   if(success == false) { puts("Invalid expression"); return 0;}
   
-  TODO();
-  sscanf(str2, "%x", &addr);
-  printf("%d -- 0x%x\n",N, addr);
+  //TODO();
+  Log("x %d : 0x%x\n",N, addr);
+
   return 0;
 }
 
