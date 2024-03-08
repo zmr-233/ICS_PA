@@ -85,7 +85,9 @@ static int cmd_x(char* args){
 
   int N;
   sscanf(str1, "%d", &N);
-  vaddr_t addr ;//= expr(str2, NULL);
+  bool success=false;
+  vaddr_t addr = expr(str2, &success);
+  if(success == false) { puts("Invalid expression"); return 0;}
   sscanf(str2, "%x", &addr);
   printf("%d -- 0x%x\n",N, addr);
   return 0;

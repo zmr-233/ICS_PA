@@ -48,7 +48,7 @@ static struct rule {
   {"[0-9]+", TK_DEC},  // decimal
   {"\\$[a-zA-Z0-9]+", TK_REG}, // register
   {"[a-zA-Z_][a-zA-Z0-9_]*", TK_VAR}, // identifier/variable
-  
+
 
 };
 
@@ -81,6 +81,8 @@ typedef struct token {
 static Token tokens[32] __attribute__((used)) = {};
 static int nr_token __attribute__((used))  = 0;
 
+#define CHECK_NR_TOKEN if(nr_token >= 32) { printf("Too many tokens\n"); return false; }
+
 static bool make_token(char *e) {
   int position = 0;
   int i;
@@ -107,7 +109,20 @@ static bool make_token(char *e) {
          */
 
         switch (rules[i].token_type) {
-          default: TODO();
+          case TK_NOTYPE: break;
+          case TK_HEX:
+          case TK_DEC:
+          case TK_REG:
+          case TK_VAR:
+          CHECK_NR_TOKEN
+            tokens[nr_token].type = rules[i].token_type;
+            strncpy(tokens[nr_token].str, substr_start, substr_len);
+            nr_token++;
+            break;
+          default: //运算符只需要token_type
+          CHECK_NR_TOKEN
+            tokens[nr_token].type = rules[i].token_type;
+            nr_token++;
         }
 
         break;
@@ -132,12 +147,18 @@ bool *success：这是一个指向布尔值的指针，用来指示表达式是�
 
 expr 函数的目标是实现一个表达式求值器，但是目前的代码只是一个框
 */
+void print_tokens(){
+  for(int i=0; i<nr_token; i++){
+    printf("%d: %s\n", tokens[i].type, tokens[i].str);
+  }
+}
+
 word_t expr(char *e, bool *success) {
   if (!make_token(e)) {
     *success = false;
     return 0;
   }
-
+  print_tokens();
   /* TODO: Insert codes to evaluate the expression. */
   TODO();
 
