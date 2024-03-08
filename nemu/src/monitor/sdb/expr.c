@@ -148,9 +148,9 @@ bool *success：这是一个指向布尔值的指针，用来指示表达式是�
 expr 函数的目标是实现一个表达式求值器，但是目前的代码只是一个框
 */
 void print_tokens(){
-  for(int i=0; i<nr_token; i++){
-    printf("%d: %s\n", tokens[i].type, tokens[i].str);
-  }
+  for(int i=0; i<nr_token; i++)
+    if(tokens[i].type < 256) printf(" >>%c\n", tokens[i].type);
+    else printf(" >>%d: %s\n", tokens[i].type, tokens[i].str);
 }
 
 word_t expr(char *e, bool *success) {
