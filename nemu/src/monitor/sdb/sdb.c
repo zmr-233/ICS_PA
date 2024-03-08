@@ -78,6 +78,11 @@ static int cmd_info(char* args){
 #define DEC_SCWORD MUXDEF(CONFIG_ISA64, "%"SCNu64, "%"SCNu32)
 #define DEC_PRWORD MUXDEF(CONFIG_ISA64, "%"PRIu64, "%"PRIu32)
 
+#define HEX_SCWORD MUXDEF(CONFIG_ISA64, "%llx", "%x")
+#define HEX_PRWORD MUXDEF(CONFIG_ISA64, "%#llx", "%#x")
+#define DEC_SCWORD MUXDEF(CONFIG_ISA64, "%"SCNu64, "%"SCNu32)
+#define DEC_PRWORD MUXDEF(CONFIG_ISA64, "%"PRIu64, "%"PRIu32)
+
 
 //6.扫描内存(2)
 /*x N EXPR 求出表达式EXPR的值, 将结果作为起始内存地址
@@ -95,7 +100,7 @@ static int cmd_x(char* args){
 
   if(str1 == NULL || str2 == NULL) { puts("Invalid arguments"); return 0;}
   
-  str3 = strtok_r(NULL, "\"", &saveptr);
+  str3 = strtok_r(NULL, "\"", &saveptr); //处理用双引号括起来的表达式
   Log("str3 = %s",str3);
   if((str4=strtok_r(NULL, " ", &saveptr)) != NULL) {printf("Too many arguments :%s\n",str3); return 0;}
   
@@ -109,7 +114,6 @@ static int cmd_x(char* args){
   if(success == false) { puts("Invalid expression"); return 0;}
   
   //TODO();
-  printf("%x\n",addr);
   Log("x %d : "HEX_PRWORD"\n",N, addr);
 
   return 0;
