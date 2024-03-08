@@ -78,7 +78,7 @@ x 10 $esp 以十六进制形式输出连续的N个4字节*/
 static int cmd_x(char* args){
   Log("args = %s", args);
   if(args == NULL) { puts("No arguments"); return 0;}
-  char *str1, *str2, *str3, *saveptr;
+  char *str1, *str2, *str3, *str4, *saveptr;
   
   str1 = strtok_r(args, " ", &saveptr);
   Log("str1 = %s",str1);
@@ -90,7 +90,7 @@ static int cmd_x(char* args){
   
   str3 = strtok_r(NULL, "\"", &saveptr);
   Log("str3 = %s",str3);
-  //printf("Too many arguments :%s\n",str3);
+  if((str4=strtok_r(NULL, " ", &saveptr)) != NULL) {printf("Too many arguments :%s\n",str3); return 0;}
 
   int N;
   sscanf(str1, "%d", &N);
