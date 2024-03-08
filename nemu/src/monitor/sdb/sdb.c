@@ -72,6 +72,13 @@ static int cmd_info(char* args){
   return 0;
 }
 
+//为增强进制转换，使用对应宏进行输入输出
+#define HEX_SCWORD MUXDEF(CONFIG_ISA64, "%llx", "%x")
+#define HEX_PRWORD MUXDEF(CONFIG_ISA64, "%llx", "%x")
+#define DEC_SCWORD MUXDEF(CONFIG_ISA64, "%"SCNu64, "%"SCNu32)
+#define DEC_PRWORD MUXDEF(CONFIG_ISA64, "%"PRIu64, "%"PRIu32)
+
+
 //6.扫描内存(2)
 /*x N EXPR 求出表达式EXPR的值, 将结果作为起始内存地址
 x 10 $esp 以十六进制形式输出连续的N个4字节*/
@@ -92,15 +99,17 @@ static int cmd_x(char* args){
   Log("str3 = %s",str3);
   if((str4=strtok_r(NULL, " ", &saveptr)) != NULL) {printf("Too many arguments :%s\n",str3); return 0;}
   
+  //根据str2 != str3区分是否需要解析表达式
   int N; sscanf(str1, "%d", &N);
   bool success = true;  vaddr_t addr = 0;
   if(str2 != str3)  addr = expr(str3, &success);
-  else addr = sscanf(str2, "%"MUXDEF(CONFIG_ISA64, PRIu64, PRIu32), &addr); //TODO: 这里如何根据平台不同进行分离是个好问题
+  else addr = sscanf(str2, HEX_SCWORD, &addr); 
+  //TODO: 这里如何根据平台不同进行分离是个好问题  ^^^^^^^^^^^^^^^^^^^^
 
   if(success == false) { puts("Invalid expression"); return 0;}
   
   //TODO();
-  Log("x %d : 0x%"MUXDEF(CONFIG_ISA64, PRIu64, PRIu32)"\n",N, addr);
+  Log("x %d : "HEX_PRWORD"\n",N, addr);
 
   return 0;
 }
