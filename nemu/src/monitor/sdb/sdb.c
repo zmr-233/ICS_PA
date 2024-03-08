@@ -95,7 +95,7 @@ static int cmd_x(char* args){
   int N; sscanf(str1, "%d", &N);
   bool success = true;  vaddr_t addr = 0;
   if(str2 != str3)  addr = expr(str3, &success);
-  else addr = sscanf(str2, "%d", &addr);
+  else addr = sscanf(str2, "%x", &addr);
 
   if(success == false) { puts("Invalid expression"); return 0;}
   
