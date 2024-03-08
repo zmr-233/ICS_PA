@@ -76,14 +76,15 @@ static int cmd_info(char* args){
 /*x N EXPR 求出表达式EXPR的值, 将结果作为起始内存地址
 x 10 $esp 以十六进制形式输出连续的N个4字节*/
 static int cmd_x(char* args){
+  Log("args = %s", args);
   if(args == NULL) { puts("No arguments"); return 0;}
-  char *str1, *str2, *saveptr;
+  char *str1, *str2, *str3, *saveptr;
   str1 = strtok_r(args, " ", &saveptr);
   Log("str1 = %s",str1);
   str2 = strtok_r(NULL, " ", &saveptr);
   Log("str2 = %s",str2);
   if(str1 == NULL || str2 == NULL) { puts("Invalid arguments"); return 0;}
-  //if((str3 = strtok_r(NULL, " ", &saveptr)) != NULL)  printf("Too many arguments :%s\n",str3);
+  if((str3 = strtok_r(NULL, " ", &saveptr)) != NULL)  printf("Too many arguments :%s\n",str3);
 
   int N;
   sscanf(str1, "%d", &N);
