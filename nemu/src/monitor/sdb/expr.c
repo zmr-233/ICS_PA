@@ -22,7 +22,7 @@
 
 enum {
   TK_NOTYPE = 256, TK_EQ,
-
+  TK_HEX, TK_DEC, TK_REG, TK_VAR
   /* TODO: Add more token types */
 
 };
@@ -39,6 +39,17 @@ static struct rule {
   {" +", TK_NOTYPE},    // spaces
   {"\\+", '+'},         // plus
   {"==", TK_EQ},        // equal
+  {"-", '-'},           // sub
+  {"/", '/'},           // divide
+  {"\\*", '*'},         // multiply
+  {"\\(", '('},         // left bracket
+  {"\\)", ')'},         // right bracket
+  {"0x[0-9a-fA-F]+", TK_HEX}, // hex
+  {"[0-9]+", TK_DEC},  // decimal
+  {"\\$[a-zA-Z0-9]+", TK_REG}, // register
+  {"[a-zA-Z_][a-zA-Z0-9_]*", TK_VAR}, // identifier/variable
+  
+
 };
 
 #define NR_REGEX ARRLEN(rules)
@@ -80,6 +91,7 @@ static bool make_token(char *e) {
   while (e[position] != '\0') {
     /* Try all rules one by one. */
     for (i = 0; i < NR_REGEX; i ++) {
+      //如下是通过e+position指定string的起始位置，让regexec一旦匹配，pmatch.rm_so必定为0
       if (regexec(&re[i], e + position, 1, &pmatch, 0) == 0 && pmatch.rm_so == 0) {
         char *substr_start = e + position;
         int substr_len = pmatch.rm_eo;
@@ -102,7 +114,7 @@ static bool make_token(char *e) {
       }
     }
 
-    if (i == NR_REGEX) {
+    if (i == NR_REGEX) { 
       printf("no match at position %d\n%s\n%*.s^\n", position, e, position, "");
       return false;
     }

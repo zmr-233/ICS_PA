@@ -85,8 +85,7 @@ static int cmd_x(char* args){
 
   int N;
   sscanf(str1, "%d", &N);
-  //vaddr_t addr = expr(str2, NULL);
-  vaddr_t addr;
+  vaddr_t addr ;//= expr(str2, NULL);
   sscanf(str2, "%x", &addr);
   printf("%d -- 0x%x\n",N, addr);
   return 0;
@@ -212,6 +211,7 @@ void sdb_mainloop() {
   }
 }
 
+//初始化全部在这里进行的
 void init_sdb() {
   /* Compile the regular expressions. */
   init_regex();
