@@ -79,7 +79,9 @@ static int cmd_x(char* args){
   if(args == NULL) { puts("No arguments"); return 0;}
   char *str1, *str2, *saveptr;
   str1 = strtok_r(args, " ", &saveptr);
+  Log("str1 = %s",str1);
   str2 = strtok_r(NULL, " ", &saveptr);
+  Log("str2 = %s",str2);
   if(str1 == NULL || str2 == NULL) { puts("Invalid arguments"); return 0;}
   //if((str3 = strtok_r(NULL, " ", &saveptr)) != NULL)  printf("Too many arguments :%s\n",str3);
 
