@@ -74,7 +74,7 @@ static int cmd_info(char* args){
 
 //为增强进制转换，使用对应宏进行输入输出
 #define HEX_SCWORD MUXDEF(CONFIG_ISA64, "%llx", "%x")
-#define HEX_PRWORD MUXDEF(CONFIG_ISA64, "%llx", "%x")
+#define HEX_PRWORD MUXDEF(CONFIG_ISA64, "%#llx", "%#x")
 #define DEC_SCWORD MUXDEF(CONFIG_ISA64, "%"SCNu64, "%"SCNu32)
 #define DEC_PRWORD MUXDEF(CONFIG_ISA64, "%"PRIu64, "%"PRIu32)
 
