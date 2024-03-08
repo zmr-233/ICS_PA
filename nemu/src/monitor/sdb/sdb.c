@@ -103,7 +103,7 @@ static int cmd_x(char* args){
   int N; sscanf(str1, "%d", &N);
   bool success = true;  vaddr_t addr = 0;
   if(str2 != str3)  addr = expr(str3, &success);
-  else addr = sscanf(str2, HEX_SCWORD, &addr); 
+  else sscanf(str2, HEX_SCWORD, &addr); 
   //TODO: 这里如何根据平台不同进行分离是个好问题  ^^^^^^^^^^^^^^^^^^^^
 
   if(success == false) { puts("Invalid expression"); return 0;}
