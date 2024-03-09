@@ -349,10 +349,10 @@ int64_t expr(char *e, bool *success) {
   //用于处理负号+解引用
   for(int i=0; i<nr_token; i++){
     if(tokens[i].type == '-' && (i==0 || tokens[i-1].type < 256)){
-      tokens[i].type = TK_NEG;
+      tokens[i].type = TK_NEG; Log("tokens[%d].type = TK_NEG",i);
     }
     if(tokens[i].type == '*' && (i==0 || tokens[i-1].type < 256)){
-      tokens[i].type = TK_DEREF;
+      tokens[i].type = TK_DEREF; Log("tokens[%d].type = TK_DEREF",i);
     }
   }
   return eval(0, nr_token-1, success);
