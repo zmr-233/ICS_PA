@@ -130,6 +130,7 @@ static bool make_token(char *e) {
           CHECK_NR_TOKEN
             tokens[nr_token].type = rules[i].token_type;
             strncpy(tokens[nr_token].str, substr_start, substr_len);
+            tokens[nr_token].str[substr_len] = '\0'; //！！！！！！！！！！该错误极为隐秘
             Log("stdnpcy tokens[nr_token].str :%s",tokens[nr_token].str);
             nr_token++;
             break;
