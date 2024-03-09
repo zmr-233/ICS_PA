@@ -108,7 +108,14 @@ static int cmd_x(char* args){
   //根据str2 != str3区分是否需要解析表达式
   int N; sscanf(str1, "%d", &N);
   bool success = true;  vaddr_t addr = 0;
-  if(str2 != str3)  addr = expr(str3, &success);
+  if(str2 != str3){
+    sword_t tmpaddr = expr(str3, &success);
+    if(tmpaddr < 0 || tmpaddr > MUXDEF(CONFIG_ISA64, UINT64_MAX, UINT32_MAX)) { 
+      printf("Address out of range HEX:"HEX_PRSWORD", DEC:"DEC_PRSWORD"\n",tmpaddr, tmpaddr); 
+      return 0;
+    }
+    addr = (vaddr_t)tmpaddr;
+  }
   else sscanf(str2, HEX_SCWORD, &addr); 
   //TODO: 这里如何根据平台不同进行分离是个好问题  ^^^^^^^^^^^^^^^^^^^^
 

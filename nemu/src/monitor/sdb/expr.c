@@ -23,9 +23,12 @@
 
 enum {
   TK_NOTYPE = 256, 
+  TK_NEG, //负号
+  TK_DEREF, //解引用
   TK_AND, //&&
+  TK_OR, //||
   TK_EQ, TK_NE, //== !=
-  TK_GT, TK_LT, TK_GE, TK_LE, // < > >= <=
+  TK_GT, TK_LT, TK_GE, TK_LE, // > < >= <=
   TK_HEX, TK_DEC, TK_REG, TK_VAR // 16进制数，10进制数，寄存器，变量
 
   /*解引用放在循环进行
@@ -51,6 +54,7 @@ static struct rule {
   {"==", TK_EQ},        // equal
   {"!=", TK_NE},         // not equal
   {"&&", TK_AND},        // and
+  {"||", TK_OR},         // or
   {"-", '-'},           // sub
   {"/", '/'},           // divide
   {"\\*", '*'},         // multiply
@@ -189,10 +193,30 @@ word_t str2word(char *s, bool *success, int base){
   if(*endptr != '\0') Log("Warning: Further characters after number: %s",endptr);
   return tmp;
 }
+sword_t str2sword(char *s, bool *success, int base){
+  errno = 0; char* endptr; sword_t tmp;
+  tmp = MUXDEF(CONFIG_ISA64, strtoll(s, &endptr, base), strtol(s, &endptr, base));
+  if(errno != 0) {*success = false; Log("Error: errno = %d",errno); errno = 0; 
+    /*是否需要*/return 0;}
+  if(endptr==s) {*success = false; Log("Error: No digits were found!");return 0;}
+  if(*endptr != '\0') Log("Warning: Further characters after number: %s",endptr);
+  return tmp;
+}
+
+int64_t str2int64(char *s, bool *success, int base){
+  errno = 0; char* endptr; int64_t tmp;
+  tmp = strtoll(s, &endptr, base);
+  if(errno != 0) {*success = false; Log("Error: errno = %d",errno); errno = 0; 
+    /*是否需要*/return 0;}
+  if(endptr==s) {*success = false; Log("Error: No digits were found!");return 0;}
+  if(*endptr != '\0') Log("Warning: Further characters after number: %s",endptr);
+  return tmp;
+}
 static int getMainOp(int p, int q, bool* success){
   Log("GetMainOp() p: %d, q: %d",p,q);
   int op = -1, op_prio = __INT_MAX__, cur_prio = 0;
   for(int i=p; i<=q; i++){
+    //1.跳过括号:
     if(tokens[i].type == '(') {
       Log("Skip left bracket at %d",i);
       int cnt = 1; i++;//跳过当前括号
@@ -201,23 +225,25 @@ static int getMainOp(int p, int q, bool* success){
         else if(tokens[i].type == ')') cnt--;
         i++;
       } 
-      //i++; //修正位置
-      //continue; //避免在处理括号后用cur_prio影响到op_prio
+      //i++; //修正位置--不需要
+      //continue; //避免在处理括号后用cur_prio影响到op_prio--使用了两个if，不需要了
     }
-    
+    //2.处理token:
     if(tokens[i].type == ')') {
       Log("Error: Unmatched right bracket at %d",i);
       *success = false;
       return -1;
     }
     else if(tokens[i].type == TK_AND) cur_prio = 1;
-    else if(tokens[i].type == TK_EQ || tokens[i].type == TK_NE) cur_prio = 2;
+    else if(tokens[i].type == TK_OR) cur_prio = 2;
+    else if(tokens[i].type == TK_EQ || tokens[i].type == TK_NE) cur_prio = 3;
     else if(tokens[i].type == TK_GT 
     || tokens[i].type == TK_LT
     || tokens[i].type == TK_GE
-    || tokens[i].type == TK_LE) cur_prio = 3;
-    else if(tokens[i].type == '+' || tokens[i].type == '-') cur_prio = 4;
-    else if(tokens[i].type == '*' || tokens[i].type == '/') cur_prio = 5;
+    || tokens[i].type == TK_LE) cur_prio = 4;
+    else if(tokens[i].type == '+' || tokens[i].type == '-') cur_prio = 5;
+    else if(tokens[i].type == '*' || tokens[i].type == '/') cur_prio = 6;
+    else if(tokens[i].type == TK_NEG || tokens[i].type == TK_DEREF) cur_prio = 7;
     else if(tokens[i].type == TK_DEC 
     || tokens[i].type == TK_HEX 
     || tokens[i].type == TK_REG 
@@ -228,7 +254,7 @@ static int getMainOp(int p, int q, bool* success){
       *success = false;
       return -1;
     }
-
+    //根据优先级+结合性选择主运算符
     if(cur_prio < op_prio || (cur_prio == op_prio && op==-1)) { 
       Log("if(cur_prio <= op_prio) cur_prio=%d, op_prio=%d",cur_prio,op_prio);
       op = i; op_prio = cur_prio;}
@@ -237,7 +263,7 @@ static int getMainOp(int p, int q, bool* success){
   return op;
 }
 
-word_t eval(int p, int q, bool* success) {
+int64_t eval(int p, int q, bool* success) {
   Log("Eval() p: %d, q: %d",p,q);
   if (p > q || !*success || p<0 || q>nr_token-1) {
     Log("if (p > q || !*success || p<0 || q>nr_token-1)");
@@ -246,14 +272,10 @@ word_t eval(int p, int q, bool* success) {
   }
   else if (p == q) {
     Log("else if (p == q)");
-    /* Single token.
-     * For now this token should be a number.
-     * Return the value of the number.
-     */
     switch(tokens[p].type){
-      case TK_HEX: return str2word(tokens[p].str, success, 16);
-      case TK_DEC: return str2word(tokens[p].str, success, 10);
-      case TK_REG: return isa_reg_str2val(tokens[p].str, success); //注意:需要分别处理$0和$a0
+      case TK_HEX: return str2int64(tokens[p].str, success, 16);
+      case TK_DEC: return str2int64(tokens[p].str, success, 10);
+      case TK_REG: return (int64_t)isa_reg_str2val(tokens[p].str, success); //注意:需要分别处理$0和$a0
       case TK_VAR: *success=false; TODO(); return 0; //TODO:变量的值
       default: 
         Log("Invalid token type: %d",tokens[p].type); *success=false; return 0;
@@ -271,31 +293,67 @@ word_t eval(int p, int q, bool* success) {
     int op = getMainOp(p, q, success);
     Log("op = %d",op);
     if(!*success) {Log("Bad expression : main op"); return 0;}
-    word_t val1 = eval(p, op - 1, success);
-    wchar_t val2 = eval(op + 1, q, success);
-    if(!*success) {Log("Bad expression : val1/val2"); return 0;}
-
-    switch (tokens[op].type) {
-      case '+': return val1 + val2;
-      case '-': return val1 - val2;
-      case '*': return val1 * val2;
-      case '/': 
-        if(val2!=0)return val1 / val2;
-        Log("Devide zero!");
-        *success = false; return 0;
-      case TK_EQ: return val1 == val2;
-      default:
-        *success = false;
-        Log("Unkown main op : %c",tokens[op].type);
-        return 0;
+    //运算符分为单目+双目 | 短路+非短路
+    switch(tokens[op].type){
+    case TK_NEG:
+      int64_t neg = -eval(op + 1, q, success);
+      if(!*success) {Log("Bad expression : TK_NEG-neg"); return 0;}
+      return neg;
+    case TK_DEREF:
+      TODO(); //等待实现
+    default: //默认双目运算符
+      int64_t val1 = eval(p, op - 1, success);
+      //处理短路
+      if(!*success) {Log("Bad expression : val1"); return 0;}
+      switch(tokens[op].type){
+        case TK_AND: if(val1 == 0) return 0;
+        case TK_OR: if(val1 != 0) return 1;
+      }
+      int64_t val2 = eval(op + 1, q, success);
+      if(!*success) {Log("Bad expression : val2"); return 0;}
+      switch (tokens[op].type) {
+        case '+': return val1 + val2;
+        case '-': return val1 - val2;
+        case '*': return val1 * val2;
+        case '/': 
+          if(val2!=0)return val1 / val2;
+          Log("Devide zero!");
+          *success = false; return 0;
+        //&&
+        case TK_AND: return val1 && val2;
+        //||
+        case TK_OR: return val1 || val2;
+        //== !=
+        case TK_EQ: return val1 == val2;
+        case TK_NE: return val1 != val2;
+        //> < >= <=
+        case TK_GT: return val1 > val2;
+        case TK_LT: return val1 < val2;
+        case TK_GE: return val1 >= val2;
+        case TK_LE: return val1 <= val2;
+        default:
+          *success = false;
+          Log("Unkown main op : %c",tokens[op].type);
+          return 0;
+        /* TODO(): 实现短路的诶功能
+        */
+      }
     }
   }
 }
 
-word_t expr(char *e, bool *success) {
+int64_t expr(char *e, bool *success) {
   Log("Expr() e: %s",e);
   if (!make_token(e)) { *success = false;return 0;}
-
   print_tokens();
+  //用于处理负号+解引用
+  for(int i=0; i<nr_token; i++){
+    if(tokens[i].type == '-' && (i==0 || tokens[i-1].type < 256)){
+      tokens[i].type = TK_NEG;
+    }
+    if(tokens[i].type == '*' && (i==0 || tokens[i-1].type < 256)){
+      tokens[i].type = TK_DEREF;
+    }
+  }
   return eval(0, nr_token-1, success);
 }
