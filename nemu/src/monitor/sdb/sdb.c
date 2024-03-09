@@ -147,9 +147,10 @@ static int cmd_p(char* args){
     //printf("%s\n",str1);
     bool success = true;
     int64_t result = expr(str1, &success);
+    Log("info: result = %"PRId64, result);
     if(success == false)puts("Invalid expression");
     else printf("HEX :%#"PRIx64", DEC :%"PRId64"\n", result, result);
-    //else printf("HEX :%#lx, DEC :%#ld\n", result, result);
+    //else printf("HEX :%#lx, DEC :%ld\n", result, result);
   }while(str1 != NULL && *saveptr != '\0');
   
   return 0;
