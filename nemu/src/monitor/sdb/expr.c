@@ -165,7 +165,7 @@ expr 函数的目标是实现一个表达式求值器，但是目前的代码只
 static void print_tokens(){
   Log("Print tokens: ");
   for(int i=0; i<nr_token; i++)
-    if(tokens[i].type > 256) Log(" >>%c", tokens[i].type);
+    if(tokens[i].type > 256) Log(" >>%d", tokens[i].type);
     else Log(" >>%d: %s", tokens[i].type, tokens[i].str);
   Log("---------------");
 }
