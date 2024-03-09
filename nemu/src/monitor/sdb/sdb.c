@@ -137,6 +137,7 @@ static int cmd_p(char* args){
   char * saveptr;
   char * str1 = args;
   do{
+    Log("While str1 = %s",str1);
     if(str1[0] == '\"'){
       str1 = strtok_r(str1, "\"", &saveptr);
       Log("if(str1[0] == \"\\\") :Str1 = %s", str1);
