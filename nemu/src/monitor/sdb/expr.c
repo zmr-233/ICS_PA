@@ -265,7 +265,7 @@ static int getMainOp(int p, int q, bool* success){
       op = i; op_prio = cur_prio;}
   }
   //if(op < p || op > q)
-    Assert(op < p || op > q || *success == false,"getMainOpLog: Bad expression : main op = %d",op);
+    //Assert(op < p || op > q || *success == false,"getMainOpLog: Bad expression : main op = %d",op);
   return op;
 }
 
