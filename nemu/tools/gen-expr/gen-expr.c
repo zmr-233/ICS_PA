@@ -54,13 +54,13 @@ static int buf_i = 0;
 static void gen_num() {
   nr++;
   uint32_t num = rand() % MAX_NUM;
-  if (choose(2)) { 
-    int len = sprintf(&buf[buf_i], "%#x", num);
+  //if (choose(2)) { 
+    int len = sprintf(&buf[buf_i], "0x%x", num);
     buf_i += len;
-  } else { 
-    int len = sprintf(&buf[buf_i], "%u", num);
-    buf_i += len;
-  }
+  //} else { 
+  //  int len = sprintf(&buf[buf_i], "%u", num);
+  //  buf_i += len;
+  //}
 }
 
 static void gen_rand_op() {

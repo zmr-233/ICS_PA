@@ -22,8 +22,9 @@
 #include <errno.h>
 
 enum {
-  TK_NOTYPE = 256, TK_EQ = 257,
-  TK_HEX = 258, TK_DEC = 259, TK_REG = 260, TK_VAR = 261
+  TK_NOTYPE = 256, 
+  TK_EQ, TK_NE, TK_AND,
+  TK_HEX, TK_DEC , TK_REG, TK_VAR
 
   /* TODO: Add more token types */
 
@@ -40,6 +41,8 @@ static struct rule {
   {" +", TK_NOTYPE},    // spaces
   {"\\+", '+'},         // plus
   {"==", TK_EQ},        // equal
+  {"!=", TK_NE},         // not equal
+  {"&&", TK_AND},        // and
   {"-", '-'},           // sub
   {"/", '/'},           // divide
   {"\\*", '*'},         // multiply
