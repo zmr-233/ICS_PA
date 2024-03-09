@@ -78,10 +78,10 @@ static int cmd_info(char* args){
 #define DEC_SCWORD MUXDEF(CONFIG_ISA64, "%"SCNu64, "%"SCNu32)
 #define DEC_PRWORD MUXDEF(CONFIG_ISA64, "%"PRIu64, "%"PRIu32)
 
-#define HEX_SCWORD MUXDEF(CONFIG_ISA64, "%llx", "%x")
-#define HEX_PRWORD MUXDEF(CONFIG_ISA64, "%#llx", "%#x")
-#define DEC_SCWORD MUXDEF(CONFIG_ISA64, "%"SCNu64, "%"SCNu32)
-#define DEC_PRWORD MUXDEF(CONFIG_ISA64, "%"PRIu64, "%"PRIu32)
+#define HEX_SCSWORD MUXDEF(CONFIG_ISA64, "%llx", "%x")
+#define HEX_PRSWORD MUXDEF(CONFIG_ISA64, "%#llx", "%#x")
+#define DEC_SCSWORD MUXDEF(CONFIG_ISA64, "%"SCNd64, "%"SCNd32)
+#define DEC_PRSWORD MUXDEF(CONFIG_ISA64, "%"PRId64, "%"PRId32)
 
 
 //6.扫描内存(2)
@@ -115,7 +115,7 @@ static int cmd_x(char* args){
   
   //TODO();
   Log("x %d : "HEX_PRWORD"\n",N, addr);
-
+  
   return 0;
 }
 

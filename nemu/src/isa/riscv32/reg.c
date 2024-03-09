@@ -112,9 +112,9 @@ void isa_reg_display() {
 //2.用于取出寄存器的值
 word_t isa_reg_str2val(const char *s, bool *success) {
   *success = false;
-  if(strlen(s) != strlen(regs[0])) return 0;
-  for(int idx=0; idx < MUXDEF(CONFIG_RVE, 16, 32);idx++){
-    if(strcmp(s, reg_name(idx)) == 0){
+  if(strcmp(s,reg_name(0)) == 0){*success = true; return 0;}
+  for(int idx=1; idx < MUXDEF(CONFIG_RVE, 16, 32);idx++){
+    if(strcmp(s+1, reg_name(idx)) == 0){
       *success = true;
       return gpr(idx);
     }

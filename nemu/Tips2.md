@@ -401,6 +401,32 @@ char* strtok(char* str, const char*delim);
 char* strtok_r(char* str,const cahr *delim, char **seveptr); //线程安全-可重入
 ```
 
+### 2. strtol/strtoll/strtoq字符串转数字函数
+
+这几个函数用于将字符串转换为长整数，其中可以使用base来指定基数类型。
+
+- 开头可以有任意数量的空字符(使用isspace(3)来判定), 在第一个非有效数字处停下, 并把位置通过endptr来传递
+- 如果没有任何数字，strtol()返回0，同时endptr=nptr;如果`*endptr=='\0'`表明解析力整个字符串，并没有任何非法字符
+- 对于underflow/overflow会相应地返回`LONG_MIN/LONG_MAX`，意味着要**判断错误必须要通过判断`errno`来进行**，而对于strtoll来说会返回`LLONG_MIN/LLONG_MAX`
+
+对于errno:
+
+- `EINVAL`:给定的基数不支持(有实现对于空转换也会设置这个错误码)
+- `ERANGE`:结果超出值域
+
+```c
+#include <stdlib.h>
+#include <errno.h>
+long strtol(const char *nptr, char **endptr, int base);
+long long strtoll(const char *nptr, char **endptr, int base);
+//使用举例:
+errno = 0;//显式设置为0
+val = strtol(str, &endptr, base);
+if(errno!=0) {perror("strtol"); exit(EXIT_FAILURE);}
+if(endptr==str){STDERR("No digits were found");}
+if(*endptr!='\0') STDERR("Warning too many arguments"); //不应该作为错误
+```
+
 ---
 
 ## 6.C其他函数
@@ -421,11 +447,27 @@ printf("%s %d, %d = %s\n", month, day, year, weekday );
 
 ### 6.2 打印uint64_t和uint32_t类型的值
 
+uint64_t和uint32_t是在C99标准中引入的，位于stdint.h或cstdint头文件中，推荐使用<inttypes.h> 包含一些宏:
+
+- Print用: `PRIu64`和`PRIu32`
+- Scanf用: `SCNu64`和`SCNu32`
+
+```c
+#include <inttypes.h> // 包含PRIu32和PRIu64宏
+addr = sscanf(str2, MUXDEF(CONFIG_ISA64, PRIu64, PRIu32), &addr);
+
+//针对32/64位+ HEX/DEC的平台移植输出需要，定义了一些宏:
+#define HEX_SCWORD MUXDEF(CONFIG_ISA64, "%llx", "%x")
+#define HEX_PRWORD MUXDEF(CONFIG_ISA64, "%#llx", "%#x")
+#define DEC_SCWORD MUXDEF(CONFIG_ISA64, "%"SCNu64, "%"SCNu32)
+#define DEC_PRWORD MUXDEF(CONFIG_ISA64, "%"PRIu64, "%"PRIu32)
+sscanf(str2, HEX_SCWORD, &addr);  //比较方便
+Log("x %d : "HEX_PRWORD"\n",N, addr);
+```
+
 ---
 
 ## 7.POSIX<regex.h>正则表达式
-
-
 
 ```c
 #include <regex.h>
