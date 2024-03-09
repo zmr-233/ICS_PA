@@ -76,10 +76,10 @@ typedef struct token {
   char str[32];
 } Token;
 
-static Token tokens[48] __attribute__((used)) = {};
+static Token tokens[64] __attribute__((used)) = {};
 static int nr_token __attribute__((used))  = 0;
 
-#define CHECK_NR_TOKEN if(nr_token >= 48) { printf("Too many tokens\n"); return false; }
+#define CHECK_NR_TOKEN if(nr_token >= 63) { printf("Too many tokens\n"); return false; }
 
 static bool make_token(char *e) {
   int position = 0;

@@ -30,9 +30,15 @@ static char *code_format =
 "  printf(\"%%u\", result); "
 "  return 0; "
 "}";
-
+static int nr = 0;
+#define CHECK_NR nr>=63
+#define choose(x) rand()%x
 static void gen_rand_expr() {
-  buf[0] = '\0';
+  switch (choose(3)) {
+    case 0: gen_num(); break;
+    case 1: gen('('); gen_rand_expr(); gen(')'); break;
+    default: gen_rand_expr(); gen_rand_op(); gen_rand_expr(); break;
+  }
 }
 
 int main(int argc, char *argv[]) {
@@ -44,6 +50,7 @@ int main(int argc, char *argv[]) {
   }
   int i;
   for (i = 0; i < loop; i ++) {
+    nr = 0;
     gen_rand_expr();
 
     sprintf(code_buf, code_format, buf);
@@ -54,7 +61,7 @@ int main(int argc, char *argv[]) {
     fclose(fp);
 
     int ret = system("gcc /tmp/.code.c -o /tmp/.expr");
-    if (ret != 0) continue;
+    if (ret != 0) continue; //除0这里返回值不为0，因此可以不用考虑
 
     fp = popen("/tmp/.expr", "r");
     assert(fp != NULL);
