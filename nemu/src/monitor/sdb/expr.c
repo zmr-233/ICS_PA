@@ -260,12 +260,13 @@ static int getMainOp(int p, int q, bool* success){
     }
     //根据优先级+结合性选择主运算符
     //if(cur_prio < op_prio || (cur_prio == op_prio && op==-1)) { 
-    if(cur_prio <= op_prio || op==-1) {   
+    if(cur_prio <= op_prio) {   
       IFDEF(getMainOpLog, Log("if(cur_prio <= op_prio) cur_prio=%d, op_prio=%d",cur_prio,op_prio));
-      op = i; op_prio = cur_prio;}
+      op = i; op_prio = cur_prio;
+    }
   }
-  //if(op < p || op > q)
-    //Assert(op < p || op > q || *success == false,"getMainOpLog: Bad expression : main op = %d",op);
+  if(op < p || op > q)
+    Assert(op < p || op > q || *success == false,"getMainOpLog: Bad expression : main op = %d",op);
   return op;
 }
 
