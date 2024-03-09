@@ -360,5 +360,8 @@ int64_t expr(char *e, bool *success) {
       tokens[i].type = TK_DEREF; Log("tokens[%d].type = TK_DEREF",i);
     }
   }
-  return eval(0, nr_token-1, success);
+  int64_t tmp = eval(0, nr_token-1, success);
+  if(!*success) {Log("Bad expression : eval"); return 0;}
+  Log("info : expr() :%"PRId64,tmp);
+  return tmp;
 }
