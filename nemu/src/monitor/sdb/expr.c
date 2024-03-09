@@ -246,6 +246,7 @@ word_t eval(int p, int q, bool* success) {
   else {
     Log("else:");
     int op = getMainOp(p, q, success);
+    Log("op = %d",op);
     if(!*success) {Log("Bad expression : main op"); return 0;}
     word_t val1 = eval(p, op - 1, success);
     wchar_t val2 = eval(op + 1, q, success);
