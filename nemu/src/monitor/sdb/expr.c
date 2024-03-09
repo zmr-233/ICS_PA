@@ -300,7 +300,7 @@ int64_t eval(int p, int q, bool* success) {
       if(!*success) {Log("Bad expression : TK_NEG-neg"); return 0;}
       return neg;
     case TK_DEREF:
-      TODO(); //等待实现
+      Assert(TK_REG,"TODO() TK_DEREF");
     default: //默认双目运算符
       int64_t val1 = eval(p, op - 1, success);
       //处理短路
@@ -348,10 +348,11 @@ int64_t expr(char *e, bool *success) {
   print_tokens();
   //用于处理负号+解引用
   for(int i=0; i<nr_token; i++){
-    if(tokens[i].type == '-' && (i==0 || tokens[i-1].type < 256)){
+    int ptype = tokens[i-1].type;
+    if(tokens[i].type == '-' && (i==0 || (ptype < 256 && ptype != ')'))){
       tokens[i].type = TK_NEG; Log("tokens[%d].type = TK_NEG",i);
     }
-    if(tokens[i].type == '*' && (i==0 || tokens[i-1].type < 256)){
+    if(tokens[i].type == '*' && (i==0 || (ptype < 256 && ptype != ')'))){
       tokens[i].type = TK_DEREF; Log("tokens[%d].type = TK_DEREF",i);
     }
   }
