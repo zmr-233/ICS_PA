@@ -127,16 +127,18 @@ static int cmd_x(char* args){
   return 0;
 }
 
-#ifdef NEXTUSE
-
 //7.表达式求值
 /*p EXPR 求出表达式EXPR的值, EXPR支持的运算请见调试中的表达式求值小节
 https://nju-projectn.github.io/ics-pa-gitbook/ics2024/1.6.html
 p $eax + 1*/
 static int cmd_p(char* args){
-
+  Log("args = %s", args);
+  if(args == NULL) { puts("No arguments"); return 0;}
+  //bool success = true;
   return 0;
 }
+
+#ifdef NEXTUSE
 
 //8.设置监视点
 /*w EXPR 当表达式EXPR的值发生变化时,暂停程序执行
@@ -169,6 +171,7 @@ static struct {
   //TEMP:
   { "i", "Info Register", cmd_info }, 
   { "x", "Scan Memory", cmd_x },
+  { "p", "Evaluate Expression", cmd_p}
 
   /* TODO: Add more commands */
 
