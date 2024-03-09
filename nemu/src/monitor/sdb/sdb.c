@@ -102,7 +102,8 @@ static int cmd_x(char* args){
   
   str3 = strtok_r(NULL, "\"", &saveptr); //处理用双引号括起来的表达式
   Log("str3 = %s",str3);
-  if((str4=strtok_r(NULL, " ", &saveptr)) != NULL) {printf("Too many arguments :%s\n",str3); return 0;}
+  saveptr = NULL;
+  if((str4=strtok_r(str2, " ", &saveptr)) != NULL) {printf("Too many arguments :%s\n",str3); return 0;}
   
   //根据str2 != str3区分是否需要解析表达式
   int N; sscanf(str1, "%d", &N);
