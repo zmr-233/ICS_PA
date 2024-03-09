@@ -212,6 +212,7 @@ static int getMainOp(int p, int q, bool* success){
 
     if(cur_prio <= op_prio) {op = i; op_prio = cur_prio;}
   }
+  if(op < p || op > q)Assert(*success == false,"Bad expression : main op = %d",op);
   return op;
 }
 
