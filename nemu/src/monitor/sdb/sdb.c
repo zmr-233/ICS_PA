@@ -84,6 +84,7 @@ static int cmd_info(char* args){
 #define DEC_PRSWORD MUXDEF(CONFIG_ISA64, "%"PRId64, "%"PRId32)
 
 
+
 //6.扫描内存(2)
 /*x N EXPR 求出表达式EXPR的值, 将结果作为起始内存地址
 x 10 $esp 以十六进制形式输出连续的N个4字节*/

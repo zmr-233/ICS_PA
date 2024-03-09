@@ -23,10 +23,14 @@
 
 enum {
   TK_NOTYPE = 256, 
-  TK_EQ, TK_NE, TK_AND,
-  TK_HEX, TK_DEC , TK_REG, TK_VAR
+  TK_AND, //&&
+  TK_EQ, TK_NE, //== !=
+  TK_GT, TK_LT, TK_GE, TK_LE, // < > >= <=
+  TK_HEX, TK_DEC, TK_REG, TK_VAR // 16进制数，10进制数，寄存器，变量
 
-  /* TODO: Add more token types */
+  /*解引用放在循环进行
+
+  */
 
 };
 
@@ -40,6 +44,10 @@ static struct rule {
    */
   {" +", TK_NOTYPE},    // spaces
   {"\\+", '+'},         // plus
+  {"<", TK_LT},         // less than
+  {">", TK_GT},         // greater than
+  {"<=", TK_LE},        // less or equal
+  {">=", TK_GE},        // greater or equal
   {"==", TK_EQ},        // equal
   {"!=", TK_NE},         // not equal
   {"&&", TK_AND},        // and
@@ -202,9 +210,14 @@ static int getMainOp(int p, int q, bool* success){
       *success = false;
       return -1;
     }
-    else if(tokens[i].type == TK_EQ) cur_prio = 1;
-    else if(tokens[i].type == '+' || tokens[i].type == '-') cur_prio = 2;
-    else if(tokens[i].type == '*' || tokens[i].type == '/') cur_prio = 3;
+    else if(tokens[i].type == TK_AND) cur_prio = 1;
+    else if(tokens[i].type == TK_EQ || tokens[i].type == TK_NE) cur_prio = 2;
+    else if(tokens[i].type == TK_GT 
+    || tokens[i].type == TK_LT
+    || tokens[i].type == TK_GE
+    || tokens[i].type == TK_LE) cur_prio = 3;
+    else if(tokens[i].type == '+' || tokens[i].type == '-') cur_prio = 4;
+    else if(tokens[i].type == '*' || tokens[i].type == '/') cur_prio = 5;
     else if(tokens[i].type == TK_DEC 
     || tokens[i].type == TK_HEX 
     || tokens[i].type == TK_REG 
@@ -282,6 +295,7 @@ word_t eval(int p, int q, bool* success) {
 word_t expr(char *e, bool *success) {
   Log("Expr() e: %s",e);
   if (!make_token(e)) { *success = false;return 0;}
+
   print_tokens();
   return eval(0, nr_token-1, success);
 }
