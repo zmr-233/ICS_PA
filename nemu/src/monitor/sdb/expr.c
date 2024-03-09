@@ -191,9 +191,10 @@ static int getMainOp(int p, int q, bool* success){
         i++;
       } 
       //i++; //修正位置
-      continue; //避免在处理括号后用cur_prio影响到op_prio
+      //continue; //避免在处理括号后用cur_prio影响到op_prio
     }
-    else if(tokens[i].type == ')') {
+    
+    if(tokens[i].type == ')') {
       Log("Error: Unmatched right bracket at %d",i);
       *success = false;
       return -1;
