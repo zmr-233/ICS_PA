@@ -267,26 +267,27 @@ static int getMainOp(int p, int q, bool* success){
   return op;
 }
 
+#define evalLog 1
 int64_t eval(int p, int q, bool* success) {
-  Log("Eval() p: %d, q: %d",p,q);
+  IFDEF(evalLog, Log("Eval() p: %d, q: %d",p,q));
   if (p > q || !*success || p<0 || q>nr_token-1) {
-    Log("if (p > q || !*success || p<0 || q>nr_token-1)");
+    Log("Error: if (p > q || !*success || p<0 || q>nr_token-1)");
     *success |= false;
     return 0;
   }
   else if (p == q) {
-    Log("else if (p == q)");
+    IFDEF(evalLog, Log("else if (p == q)"));
     switch(tokens[p].type){
       case TK_HEX: return str2int64(tokens[p].str, success, 16);
       case TK_DEC: return str2int64(tokens[p].str, success, 10);
       case TK_REG: return (int64_t)isa_reg_str2val(tokens[p].str, success); //注意:需要分别处理$0和$a0
       case TK_VAR: *success=false; TODO(); return 0; //TODO:变量的值
       default: 
-        Log("Invalid token type: %d",tokens[p].type); *success=false; return 0;
+        Log("Error: Invalid token type: %d",tokens[p].type); *success=false; return 0;
     }
   }
   else if (check_parentheses(p, q, success) == true) {
-    Log("else if (check_parentheses(p, q, success) == true)");
+    IFDEF(evalLog, Log("else if (check_parentheses(p, q, success) == true)"));
     /* The expression is surrounded by a matched pair of parentheses.
      * If that is the case, just throw away the parentheses.
      */
@@ -296,26 +297,26 @@ int64_t eval(int p, int q, bool* success) {
     Log("else:");
     int op = getMainOp(p, q, success);
     Log("op = %d",op);
-    if(!*success) {Log("Bad expression : main op"); return 0;}
+    if(!*success) {Log("Error: Bad expression : main op"); return 0;}
     //运算符分为单目+双目 | 短路+非短路
     switch(tokens[op].type){
     case TK_NEG:
       int64_t neg = -eval(op + 1, q, success);
-      if(!*success) {Log("Bad expression : TK_NEG-neg"); return 0;}
-      Log("info : TK_NEG :%"PRId64,neg);
+      if(!*success) {Log("Error: Bad expression : TK_NEG-neg"); return 0;}
+      IFDEF(evalLog, Log("Info : return TK_NEG :%"PRId64,neg));
       return neg;
     case TK_DEREF:
       Assert(TK_REG,"TODO() TK_DEREF");
     default: //默认双目运算符
       int64_t val1 = eval(p, op - 1, success);
       //处理短路
-      if(!*success) {Log("Bad expression : val1"); return 0;}
+      if(!*success) {Log("Error: Bad expression : val1"); return 0;}
       switch(tokens[op].type){
         case TK_AND: if(val1 == 0) return 0;
         case TK_OR: if(val1 != 0) return 1;
       }
       int64_t val2 = eval(op + 1, q, success);
-      if(!*success) {Log("Bad expression : val2"); return 0;}
+      if(!*success) {Log("Error: Bad expression : val2"); return 0;}
       switch (tokens[op].type) {
         case '+': 
           return val1 + val2;
@@ -325,7 +326,7 @@ int64_t eval(int p, int q, bool* success) {
           return val1 * val2;
         case '/': 
           if(val2!=0)return val1 / val2;
-          Log("Devide zero!");
+          Log("Error: Devide zero!");
           *success = false; return 0;
         //&&
         case TK_AND: return val1 && val2;
@@ -341,7 +342,7 @@ int64_t eval(int p, int q, bool* success) {
         case TK_LE: return val1 <= val2;
         default:
           *success = false;
-          Log("Unkown main op : %c",tokens[op].type);
+          Log("Error: Unkown main op : %c",tokens[op].type);
           return 0;
         /* TODO(): 实现短路的诶功能
         */
@@ -350,8 +351,9 @@ int64_t eval(int p, int q, bool* success) {
   }
 }
 
+#define exprLog 0
 int64_t expr(char *e, bool *success) {
-  Log("Expr() e: %s",e);
+  IFDEF(exprLog, Log("Expr() e: %s",e));
   if (!make_token(e)) { *success = false;return 0;}
   print_tokens();
   //用于处理负号+解引用
