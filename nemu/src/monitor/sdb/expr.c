@@ -215,6 +215,7 @@ static int getMainOp(int p, int q, bool* success){
 }
 
 word_t eval(int p, int q, bool* success) {
+  Log("Eval() p: %d, q: %d",p,q);
   if (p > q || !*success || p<0 || q>nr_token-1) {
     *success |= false;
     return 0;
