@@ -217,7 +217,7 @@ int64_t str2int64(char *s, bool *success, int base){
 }
 #define getMainOpLog 1
 static int getMainOp(int p, int q, bool* success){
-  IFDEF(getMainOpLog, Log("GetMainOp() p: %d, q: %d",p,q));
+  IFDEF(getMainOpLog, Log("GetMainOp() p: %d, q: %d, success: %d",p,q,success?1:0));
   int op = -1, op_prio = __INT_MAX__, cur_prio = 0;
   for(int i=p; i<=q; i++){
     //1.跳过括号:
