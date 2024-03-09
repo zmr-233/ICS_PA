@@ -166,7 +166,7 @@ static void print_tokens(){
   Log("Print tokens: ");
   for(int i=0; i<nr_token; i++)
     if(tokens[i].type > 256) Log(" >>%d", tokens[i].type);
-    else Log(" >>%d: %s", tokens[i].type, tokens[i].str);
+    else Log(" >>%d: \\|%s\\|", tokens[i].type, tokens[i].str);
   Log("---------------");
 }
 
