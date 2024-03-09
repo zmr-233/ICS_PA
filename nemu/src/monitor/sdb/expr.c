@@ -217,10 +217,12 @@ static int getMainOp(int p, int q, bool* success){
 word_t eval(int p, int q, bool* success) {
   Log("Eval() p: %d, q: %d",p,q);
   if (p > q || !*success || p<0 || q>nr_token-1) {
+    Log("if (p > q || !*success || p<0 || q>nr_token-1)");
     *success |= false;
     return 0;
   }
   else if (p == q) {
+    Log("else if (p == q)");
     /* Single token.
      * For now this token should be a number.
      * Return the value of the number.
@@ -235,12 +237,14 @@ word_t eval(int p, int q, bool* success) {
     }
   }
   else if (check_parentheses(p, q, success) == true) {
+    Log("else if (check_parentheses(p, q, success) == true)");
     /* The expression is surrounded by a matched pair of parentheses.
      * If that is the case, just throw away the parentheses.
      */
     return eval(p + 1, q - 1, success);
   }
   else {
+    Log("else:");
     int op = getMainOp(p, q, success);
     if(!*success) {Log("Bad expression : main op"); return 0;}
     word_t val1 = eval(p, op - 1, success);
