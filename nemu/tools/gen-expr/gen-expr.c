@@ -20,6 +20,17 @@
 #include <assert.h>
 #include <string.h>
 
+//为增强进制转换，使用对应宏进行输入输出
+#define HEX_SCWORD MUXDEF(CONFIG_ISA64, "%llx", "%x")
+#define HEX_PRWORD MUXDEF(CONFIG_ISA64, "%#llx", "%#x")
+#define DEC_SCWORD MUXDEF(CONFIG_ISA64, "%"SCNu64, "%"SCNu32)
+#define DEC_PRWORD MUXDEF(CONFIG_ISA64, "%"PRIu64, "%"PRIu32)
+
+#define HEX_SCSWORD MUXDEF(CONFIG_ISA64, "%llx", "%x")
+#define HEX_PRSWORD MUXDEF(CONFIG_ISA64, "%#llx", "%#x")
+#define DEC_SCSWORD MUXDEF(CONFIG_ISA64, "%"SCNd64, "%"SCNd32)
+#define DEC_PRSWORD MUXDEF(CONFIG_ISA64, "%"PRId64, "%"PRId32)
+
 // this should be enough
 static char buf[65536] = {};
 static char code_buf[65536 + 128] = {}; // a little larger than `buf`
@@ -31,13 +42,55 @@ static char *code_format =
 "  return 0; "
 "}";
 static int nr = 0;
-#define CHECK_NR nr>=63
-#define choose(x) rand()%x
+static int buf_i = 0;
+
+#define CHECK_NR(x) (nr+(x)>=32)
+#define CHECK_BUF_I (buf_i>=65500)
+
+#define choose(x) (rand()%(x))
+#define gen(x) do { buf[buf_i++]=(x); } while(0)
+
+static void gen_num() {
+  nr++;
+  if (choose(2)) { 
+    uint32_t num = rand();
+    int len = sprintf(&buf[buf_i], "0x%X", num);
+    buf_i += len;
+  } else { 
+    uint32_t num = rand();
+    int len = sprintf(&buf[buf_i], "%u", num);
+    buf_i += len;
+  }
+}
+
+static void gen_rand_op() {
+    int r = choose(5);
+    gen(r == 0 ? '+' : r == 1 ? '-' : r == 2 ? '*' : r == 3 ? '/' : '=');
+    nr++;
+}
+
 static void gen_rand_expr() {
+  if(CHECK_BUF_I) return;
+  if (CHECK_NR(0)) {gen_num(); return;}// 完成表达式
+  
   switch (choose(3)) {
-    case 0: gen_num(); break;
-    case 1: gen('('); gen_rand_expr(); gen(')'); break;
-    default: gen_rand_expr(); gen_rand_op(); gen_rand_expr(); break;
+    case 0: 
+      gen_num(); 
+      break;
+    case 1:
+      if (CHECK_NR(3)) {gen_num(); return;}// 完成表达式
+      gen('('); 
+      gen_rand_expr(); 
+      gen(')');
+      nr+=2; 
+      
+    break;
+    default: 
+      if (CHECK_NR(3)) {gen_num(); return;}// 完成表达式
+      gen_rand_expr(); 
+      gen_rand_op(); 
+      gen_rand_expr(); 
+      break;
   }
 }
 
@@ -50,7 +103,8 @@ int main(int argc, char *argv[]) {
   }
   int i;
   for (i = 0; i < loop; i ++) {
-    nr = 0;
+    nr = 0, buf_i = 0;
+    nr = rand() % 32 + 1; // 动态设置token长度的上限
     gen_rand_expr();
 
     sprintf(code_buf, code_format, buf);
