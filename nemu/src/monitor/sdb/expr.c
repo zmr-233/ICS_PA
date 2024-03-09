@@ -319,27 +319,41 @@ int64_t eval(int p, int q, bool* success) {
       if(!*success) {Log("Error: Bad expression : val2"); return 0;}
       switch (tokens[op].type) {
         case '+': 
+          IFDEF(evalLog, Log("Info :val1+val2 :%"PRId64,val1 + val2));
           return val1 + val2;
-        case '-': 
+        case '-':
+          IFDEF(evalLog, Log("Info :val1-val2 :%"PRId64,val1 - val2));
           return val1 - val2;
         case '*': 
+          IFDEF(evalLog, Log("Info :val1*val2 :%"PRId64,val1 * val2));
           return val1 * val2;
         case '/': 
-          if(val2!=0)return val1 / val2;
+          if(val2!=0){
+            IFDEF(evalLog, Log("Info :val1/val2 :%"PRId64,val1 / val2));
+            return val1 / val2;
+          }
           Log("Error: Devide zero!");
           *success = false; return 0;
         //&&
-        case TK_AND: return val1 && val2;
+        case TK_AND: 
+          return val1 && val2;
         //||
-        case TK_OR: return val1 || val2;
+        case TK_OR: 
+          return val1 || val2;
         //== !=
-        case TK_EQ: return val1 == val2;
-        case TK_NE: return val1 != val2;
+        case TK_EQ: 
+          return val1 == val2;
+        case TK_NE: 
+          return val1 != val2;
         //> < >= <=
-        case TK_GT: return val1 > val2;
-        case TK_LT: return val1 < val2;
-        case TK_GE: return val1 >= val2;
-        case TK_LE: return val1 <= val2;
+        case TK_GT: 
+          return val1 > val2;
+        case TK_LT: 
+          return val1 < val2;
+        case TK_GE: 
+          return val1 >= val2;
+        case TK_LE: 
+          return val1 <= val2;
         default:
           *success = false;
           Log("Error: Unkown main op : %c",tokens[op].type);
@@ -351,7 +365,7 @@ int64_t eval(int p, int q, bool* success) {
   }
 }
 
-#define exprLog 0
+//#define exprLog 1
 int64_t expr(char *e, bool *success) {
   IFDEF(exprLog, Log("Expr() e: %s",e));
   if (!make_token(e)) { *success = false;return 0;}
