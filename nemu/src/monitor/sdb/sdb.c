@@ -141,11 +141,13 @@ static int cmd_p(char* args){
     if(saveptr[0] == '\"'){
       str1 = strtok_r(NULL, "\"", &saveptr);
       Log("if(str1[0] == \"\\\") Str1 :%s, saveptr :%s",str1,saveptr);
+      saveptr++;
     }else{
       str1 = strtok_r(NULL, "\"", &saveptr);
       Log("else: Str1 :%s, saveptr :%s",str1,saveptr);
+      saveptr++;
     }
-  }while((str1 = strtok_r(saveptr, " ", &saveptr)) != NULL);
+  }while(str1 != NULL);
   
   //bool success = true;
   return 0;
