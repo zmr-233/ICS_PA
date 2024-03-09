@@ -229,11 +229,12 @@ static int getMainOp(int p, int q, bool* success){
         else if(tokens[i].type == ')') cnt--;
         i++;
       } 
-      //i++; //修正位置--不需要
-      //continue; //避免在处理括号后用cur_prio影响到op_prio--使用了两个if，不需要了
+      i--; //修正位置--需要
+      continue; //避免在处理括号后用cur_prio影响到op_prio--使用了两个if，不需要了
+      //!!!!!!!!!!有一种情况用if解决不了，那就是:"1-(4/2)"
     }
     //2.处理token:
-    if(tokens[i].type == ')') {
+    else if(tokens[i].type == ')') {
       Log("Error: Unmatched right bracket at %d",i);
       *success = false;
       return -1;
