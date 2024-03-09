@@ -144,7 +144,6 @@ static int cmd_p(char* args){
     }else{
       str1 = strtok_r(NULL, "\"", &saveptr);
       Log("else: Str1 :%s, saveptr :%s",str1,saveptr);
-      saveptr += *saveptr == '\0' ? 0 : 1;
     }
   }while(str1 != NULL);
   
