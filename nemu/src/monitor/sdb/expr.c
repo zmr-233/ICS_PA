@@ -165,7 +165,7 @@ expr 函数的目标是实现一个表达式求值器，但是目前的代码只
 static void print_tokens(){
   Log("Print tokens: ");
   for(int i=0; i<nr_token; i++)
-    if(tokens[i].type < 256) Log(" >>%c", tokens[i].type);
+    if(tokens[i].type > 256) Log(" >>%c", tokens[i].type);
     else Log(" >>%d: %s", tokens[i].type, tokens[i].str);
   Log("---------------");
 }
@@ -215,7 +215,7 @@ int64_t str2int64(char *s, bool *success, int base){
   IFDEF(str2int64Log, Log("str2int64() tmp :%"PRId64,tmp));
   return tmp;
 }
-#define getMainOpLog 1
+//#define getMainOpLog 1
 static int getMainOp(int p, int q, bool* success){
   IFDEF(getMainOpLog, Log("GetMainOp() p: %d, q: %d, success: %d",p,q,success?1:0));
   int op = -1, op_prio = __INT_MAX__, cur_prio = 0;
@@ -231,7 +231,7 @@ static int getMainOp(int p, int q, bool* success){
       } 
       i--; //修正位置--需要
       continue; //避免在处理括号后用cur_prio影响到op_prio--使用了两个if，不需要了
-      //!!!!!!!!!!有一种情况用if解决不了，那就是:"1-(4/2)"
+      //!!!!!!!!!!有一种情况用if解决不了，那就是:"1-(4/2)"---顽固的错误
     }
     //2.处理token:
     else if(tokens[i].type == ')') {
