@@ -46,18 +46,18 @@ static struct rule {
    * Pay attention to the precedence level of different rules.
    */
   {" +", TK_NOTYPE},    // spaces
-  {"\\+", '+'},         // plus
-  {"<", TK_LT},         // less than
-  {">", TK_GT},         // greater than
   {"<=", TK_LE},        // less or equal
   {">=", TK_GE},        // greater or equal
   {"==", TK_EQ},        // equal
   {"!=", TK_NE},         // not equal
   {"&&", TK_AND},        // and
   {"||", TK_OR},         // or
+  {"<", TK_LT},         // less than
+  {">", TK_GT},         // greater than
+  {"\\+", '+'},         // plus
   {"-", '-'},           // sub
-  {"/", '/'},           // divide
   {"\\*", '*'},         // multiply
+  {"/", '/'},           // divide
   {"\\(", '('},         // left bracket
   {"\\)", ')'},         // right bracket
   {"0x[0-9a-fA-F]+", TK_HEX}, // hex
