@@ -301,6 +301,7 @@ int64_t eval(int p, int q, bool* success) {
     case TK_NEG:
       int64_t neg = -eval(op + 1, q, success);
       if(!*success) {Log("Bad expression : TK_NEG-neg"); return 0;}
+      Log("info : TK_NEG :%"PRId64,neg);
       return neg;
     case TK_DEREF:
       Assert(TK_REG,"TODO() TK_DEREF");
