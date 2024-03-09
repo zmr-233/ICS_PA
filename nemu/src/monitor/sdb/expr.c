@@ -199,9 +199,9 @@ static int getMainOp(int p, int q, bool* success){
       *success = false;
       return -1;
     }
-    else if(tokens[i].type == '+' || tokens[i].type == '-') cur_prio = 1;
-    else if(tokens[i].type == '*' || tokens[i].type == '/') cur_prio = 2;
-    else if(tokens[i].type == TK_EQ) cur_prio = 3;
+    else if(tokens[i].type == TK_EQ) cur_prio = 1;
+    else if(tokens[i].type == '+' || tokens[i].type == '-') cur_prio = 2;
+    else if(tokens[i].type == '*' || tokens[i].type == '/') cur_prio = 3;
     else if(tokens[i].type == TK_DEC 
     || tokens[i].type == TK_HEX 
     || tokens[i].type == TK_REG 
