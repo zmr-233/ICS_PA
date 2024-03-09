@@ -146,7 +146,7 @@ static int cmd_p(char* args){
       Log("else: Str1 = %s", str1);
       str1 = NULL;
     }
-  }while((str1 = strtok_r(str1, " ", &saveptr)) != NULL);
+  }while((str1 = strtok_r(NULL, " ", &saveptr)) != NULL);
   
   //bool success = true;
   return 0;
