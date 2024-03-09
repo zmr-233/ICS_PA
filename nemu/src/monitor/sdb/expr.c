@@ -179,6 +179,7 @@ word_t str2word(char *s, bool *success, int base){
   return tmp;
 }
 static int getMainOp(int p, int q, bool* success){
+  Log("GetMainOp() p: %d, q: %d",p,q);
   int op = -1, op_prio = 0x7fffffff, cur_prio = 0;
   for(int i=p; i<=q; i++){
     if(tokens[i].type == '(') {
