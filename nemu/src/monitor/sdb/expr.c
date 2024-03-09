@@ -189,7 +189,7 @@ static int getMainOp(int p, int q, bool* success){
         if(tokens[i].type == '(') cnt++; 
         else if(tokens[i].type == ')') cnt--;
       } 
-      i--; //修正位置
+      //i--; //修正位置
     }
     else if(tokens[i].type == ')') {
       Log("Error: Unmatched right bracket at %d",i);
