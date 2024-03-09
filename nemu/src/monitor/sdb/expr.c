@@ -183,6 +183,7 @@ static int getMainOp(int p, int q, bool* success){
   int op = -1, op_prio = __INT_MAX__, cur_prio = 0;
   for(int i=p; i<=q; i++){
     if(tokens[i].type == '(') {
+      Log("Skip left bracket at %d",i);
       int cnt = 1; i++;//跳过当前括号
       while(cnt){
         i++;
