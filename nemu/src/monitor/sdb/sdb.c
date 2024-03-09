@@ -114,7 +114,7 @@ static int cmd_x(char* args){
   if(success == false) { puts("Invalid expression"); return 0;}
   
   //TODO();
-  Log("x %d : "HEX_PRWORD"\n",N, addr);
+  printf("x %d : HEX:"HEX_PRWORD", DEC:"DEC_PRWORD"\n",N, addr, addr);
   
   return 0;
 }
