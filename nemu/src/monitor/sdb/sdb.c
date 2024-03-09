@@ -134,18 +134,17 @@ p $eax + 1*/
 static int cmd_p(char* args){
   Log("args :%s", args);
   if(args == NULL) { puts("No arguments"); return 0;}
-  char * saveptr=args;
-  char * str1=args;
+  char *str1=args, *saveptr=args;
   do{
-    //Log("While str1 :%s, saveptr :%s",str1?str1:"NULL",saveptr?saveptr:"NULL");
+    Log(">>>>> While str1 :%s, saveptr :%s",str1?str1:"NULL",saveptr?saveptr:"NULL");
     if(saveptr[0] == '\"'){
       str1 = strtok_r(NULL, "\"", &saveptr);
       Log("if(str1[0] == \"\\\") Str1 :%s, saveptr :%s",str1,saveptr);
-      saveptr++;
+      saveptr += *saveptr == '\0' ? 0 : 1;
     }else{
       str1 = strtok_r(NULL, "\"", &saveptr);
       Log("else: Str1 :%s, saveptr :%s",str1,saveptr);
-      saveptr++;
+      saveptr += *saveptr == '\0' ? 0 : 1;
     }
   }while(str1 != NULL);
   
