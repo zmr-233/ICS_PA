@@ -180,16 +180,16 @@ word_t str2word(char *s, bool *success, int base){
 }
 static int getMainOp(int p, int q, bool* success){
   Log("GetMainOp() p: %d, q: %d",p,q);
-  int op = -1, op_prio = 0x7fffffff, cur_prio = 0;
+  int op = -1, op_prio = __INT_MAX__, cur_prio = 0;
   for(int i=p; i<=q; i++){
     if(tokens[i].type == '(') {
-      int j = i, cnt = 1; 
-      while(cnt) {
-        j++; 
-        if(tokens[j].type == '(') cnt++; 
-        else if(tokens[j].type == ')') cnt--;
+      int cnt = 1; i++;//跳过当前括号
+      while(cnt){
+        i++;
+        if(tokens[i].type == '(') cnt++; 
+        else if(tokens[i].type == ')') cnt--;
       } 
-      i = j;
+      i--; //修正位置
     }
     else if(tokens[i].type == ')') {
       Log("Error: Unmatched right bracket at %d",i);
@@ -210,7 +210,7 @@ static int getMainOp(int p, int q, bool* success){
       return -1;
     }
 
-    if(cur_prio <= op_prio) { 
+    if(cur_prio < op_prio || (cur_prio == op_prio && op==-1)) { 
       Log("if(cur_prio <= op_prio) cur_prio=%d, op_prio=%d",cur_prio,op_prio);
       op = i; op_prio = cur_prio;}
   }
