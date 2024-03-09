@@ -111,8 +111,8 @@ static bool make_token(char *e) {
         char *substr_start = e + position;
         int substr_len = pmatch.rm_eo;
 
-        Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
-            i, rules[i].regex, position, substr_len, substr_len, substr_start);
+        IFDEF(make_tokenLog, Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
+            i, rules[i].regex, position, substr_len, substr_len, substr_start));
 
         position += substr_len;
 
@@ -131,7 +131,7 @@ static bool make_token(char *e) {
             tokens[nr_token].type = rules[i].token_type;
             strncpy(tokens[nr_token].str, substr_start, substr_len);
             tokens[nr_token].str[substr_len] = '\0'; //！！！！！！！！！！该错误极为隐秘
-            Log("stdnpcy tokens[nr_token].str :%s",tokens[nr_token].str);
+            IFDEF(make_tokenLog, Log("stdnpcy tokens[nr_token].str :%s",tokens[nr_token].str));
             nr_token++;
             break;
           default: //运算符只需要token_type
@@ -212,16 +212,17 @@ int64_t str2int64(char *s, bool *success, int base){
     /*是否需要*/return 0;}
   if(endptr==s) {*success = false; Log("Error: No digits were found!");return 0;}
   if(*endptr != '\0') Log("Warning: Further characters after number: %s",endptr);
-  Log("str2int64() tmp :%"PRId64,tmp);
+  IFDEF(str2int64Log, Log("str2int64() tmp :%"PRId64,tmp));
   return tmp;
 }
+
 static int getMainOp(int p, int q, bool* success){
-  Log("GetMainOp() p: %d, q: %d",p,q);
+  IFDEF(getMainOpLog, Log("GetMainOp() p: %d, q: %d",p,q));
   int op = -1, op_prio = __INT_MAX__, cur_prio = 0;
   for(int i=p; i<=q; i++){
     //1.跳过括号:
     if(tokens[i].type == '(') {
-      Log("Skip left bracket at %d",i);
+      IFDEF(getMainOpLog, Log("Skip left bracket at %d",i));
       int cnt = 1; i++;//跳过当前括号
       while(cnt && i<=q){
         if(tokens[i].type == '(') cnt++; 
@@ -259,7 +260,7 @@ static int getMainOp(int p, int q, bool* success){
     }
     //根据优先级+结合性选择主运算符
     if(cur_prio < op_prio || (cur_prio == op_prio && op==-1)) { 
-      Log("if(cur_prio <= op_prio) cur_prio=%d, op_prio=%d",cur_prio,op_prio);
+      IFDEF(getMainOpLog, Log("if(cur_prio <= op_prio) cur_prio=%d, op_prio=%d",cur_prio,op_prio));
       op = i; op_prio = cur_prio;}
   }
   if(op < p || op > q)Assert(*success == false,"Bad expression : main op = %d",op);
@@ -316,9 +317,12 @@ int64_t eval(int p, int q, bool* success) {
       int64_t val2 = eval(op + 1, q, success);
       if(!*success) {Log("Bad expression : val2"); return 0;}
       switch (tokens[op].type) {
-        case '+': return val1 + val2;
-        case '-': return val1 - val2;
-        case '*': return val1 * val2;
+        case '+': 
+          return val1 + val2;
+        case '-': 
+          return val1 - val2;
+        case '*': 
+          return val1 * val2;
         case '/': 
           if(val2!=0)return val1 / val2;
           Log("Devide zero!");
@@ -354,14 +358,14 @@ int64_t expr(char *e, bool *success) {
   for(int i=0; i<nr_token; i++){
     int ptype = tokens[i-1].type;
     if(tokens[i].type == '-' && (i==0 || (ptype < 256 && ptype != ')'))){
-      tokens[i].type = TK_NEG; Log("tokens[%d].type = TK_NEG",i);
+      tokens[i].type = TK_NEG; IFDEF(exprLog, Log("tokens[%d].type = TK_NEG",i));
     }
     if(tokens[i].type == '*' && (i==0 || (ptype < 256 && ptype != ')'))){
-      tokens[i].type = TK_DEREF; Log("tokens[%d].type = TK_DEREF",i);
+      tokens[i].type = TK_DEREF; IFDEF(exprLog, Log("tokens[%d].type = TK_DEREF",i));
     }
   }
   int64_t tmp = eval(0, nr_token-1, success);
-  if(!*success) {Log("Bad expression : eval"); return 0;}
-  Log("info : expr() :%"PRId64,tmp);
+  if(!*success) {Log("Error: Bad expression : eval"); return 0;}
+  IFDEF(exprLog, Log("info : expr() :%"PRId64,tmp));
   return tmp;
 }
