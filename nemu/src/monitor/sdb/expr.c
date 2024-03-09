@@ -212,6 +212,7 @@ int64_t str2int64(char *s, bool *success, int base){
     /*是否需要*/return 0;}
   if(endptr==s) {*success = false; Log("Error: No digits were found!");return 0;}
   if(*endptr != '\0') Log("Warning: Further characters after number: %s",endptr);
+  Log("str2int64() tmp :%"PRId64,tmp);
   return tmp;
 }
 static int getMainOp(int p, int q, bool* success){
