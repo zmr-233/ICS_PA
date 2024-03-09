@@ -49,23 +49,39 @@ static int buf_i = 0;
 
 #define choose(x) (rand()%(x))
 #define gen(x) do { buf[buf_i++]=(x); } while(0)
+#define MAX_NUM 0x00FFFFFF
 
 static void gen_num() {
   nr++;
+  uint32_t num = rand() % MAX_NUM;
   if (choose(2)) { 
-    uint32_t num = rand();
-    int len = sprintf(&buf[buf_i], "0x%X", num);
+    int len = sprintf(&buf[buf_i], "%#x", num);
     buf_i += len;
   } else { 
-    uint32_t num = rand();
     int len = sprintf(&buf[buf_i], "%u", num);
     buf_i += len;
   }
 }
 
 static void gen_rand_op() {
-    int r = choose(5);
-    gen(r == 0 ? '+' : r == 1 ? '-' : r == 2 ? '*' : r == 3 ? '/' : '=');
+    int r = choose(17);
+    switch (r){
+    case 0: case 1: case 2: case 3:
+      gen('+');
+      break;
+    case 4: case 5: case 6: case 7:
+      gen('-');
+      break;
+    case 8: case 9: case 10: case 11:
+      gen('*');
+      break;
+    case 12: case 13: case 14: case 15:
+      gen('/');
+      break;
+    case 16:
+      gen('=');gen('=');
+      break;
+    }
     nr++;
 }
 
@@ -104,7 +120,7 @@ int main(int argc, char *argv[]) {
   int i;
   for (i = 0; i < loop; i ++) {
     nr = 0, buf_i = 0;
-    nr = rand() % 32 + 1; // 动态设置token长度的上限
+    nr = rand() % 18 + 15; // 动态设置token长度的上限
     gen_rand_expr();
 
     sprintf(code_buf, code_format, buf);
@@ -115,7 +131,7 @@ int main(int argc, char *argv[]) {
     fclose(fp);
 
     int ret = system("gcc /tmp/.code.c -o /tmp/.expr");
-    if (ret != 0) continue; //除0这里返回值不为0，因此可以不用考虑
+    if (ret != 0) {i--; continue;} //除0这里返回值不为0，因此可以不用考虑
 
     fp = popen("/tmp/.expr", "r");
     assert(fp != NULL);
