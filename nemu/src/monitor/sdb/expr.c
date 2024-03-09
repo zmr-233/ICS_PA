@@ -210,7 +210,9 @@ static int getMainOp(int p, int q, bool* success){
       return -1;
     }
 
-    if(cur_prio <= op_prio) {op = i; op_prio = cur_prio;}
+    if(cur_prio <= op_prio) { 
+      Log("if(cur_prio <= op_prio) cur_prio=%d, op_prio=%d",cur_prio,op_prio);
+      op = i; op_prio = cur_prio;}
   }
   if(op < p || op > q)Assert(*success == false,"Bad expression : main op = %d",op);
   return op;
