@@ -132,22 +132,20 @@ static int cmd_x(char* args){
 https://nju-projectn.github.io/ics-pa-gitbook/ics2024/1.6.html
 p $eax + 1*/
 static int cmd_p(char* args){
-  Log("args :%s", args);
+  //Log("args :%s", args);
   if(args == NULL) { puts("No arguments"); return 0;}
-  char * saveptr;
-  char * str1 = args;
+  char * saveptr=args;
+  char * str1;
   do{
-    Log("While str1 :%s, saveptr :%s",str1?str1:"NULL",saveptr?saveptr:"NULL");
-    if(str1[0] == '\"'){
-      str1 = strtok_r(str1, "\"", &saveptr);
-      Log("if(str1[0] == \"\\\") Str1 :%s, saveptr :%s",str1,saveptr);
-      str1 = NULL;
+    //Log("While str1 :%s, saveptr :%s",str1?str1:"NULL",saveptr?saveptr:"NULL");
+    if(saveptr[0] == '\"'){
+      str1 = strtok_r(NULL, "\"", &saveptr);
+      //Log("if(str1[0] == \"\\\") Str1 :%s, saveptr :%s",str1,saveptr);
     }else{
-      str1 = strtok_r(str1, "\"", &saveptr);
-      Log("else: Str1 :%s, saveptr :%s",str1,saveptr);
-      str1 = NULL;
+      str1 = strtok_r(NULL, "\"", &saveptr);
+      //Log("else: Str1 :%s, saveptr :%s",str1,saveptr);
     }
-  }while(*saveptr!='\0');
+  }while(str1!=NULL);
   
   //bool success = true;
   return 0;
