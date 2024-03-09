@@ -254,7 +254,7 @@ static int getMainOp(int p, int q, bool* success){
     || tokens[i].type == TK_VAR) 
       continue;
     else {
-      Log("Error: Invalid token type: %d",tokens[i].type);
+      Log("Error: Invalid tokens[%d].type:%d",i,tokens[i].type);
       *success = false;
       return -1;
     }
