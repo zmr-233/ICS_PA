@@ -73,13 +73,13 @@ static int cmd_info(char* args){
 }
 
 //为增强进制转换，使用对应宏进行输入输出
-#define HEX_SCWORD MUXDEF(CONFIG_ISA64, "%llx", "%x")
-#define HEX_PRWORD MUXDEF(CONFIG_ISA64, "%#llx", "%#x")
+#define HEX_SCWORD MUXDEF(CONFIG_ISA64, "%"PRIx64, "%"PRIx32)
+#define HEX_PRWORD MUXDEF(CONFIG_ISA64, "%#"PRIx64, "%#"PRIx32)
 #define DEC_SCWORD MUXDEF(CONFIG_ISA64, "%"SCNu64, "%"SCNu32)
 #define DEC_PRWORD MUXDEF(CONFIG_ISA64, "%"PRIu64, "%"PRIu32)
 
-#define HEX_SCSWORD MUXDEF(CONFIG_ISA64, "%llx", "%x")
-#define HEX_PRSWORD MUXDEF(CONFIG_ISA64, "%#llx", "%#x")
+#define HEX_SCSWORD MUXDEF(CONFIG_ISA64, "%"PRIx64, "%"PRIx32)
+#define HEX_PRSWORD MUXDEF(CONFIG_ISA64, "%#"PRIx64, "%#"PRIx32)
 #define DEC_SCSWORD MUXDEF(CONFIG_ISA64, "%"SCNd64, "%"SCNd32)
 #define DEC_PRSWORD MUXDEF(CONFIG_ISA64, "%"PRId64, "%"PRId32)
 
@@ -132,30 +132,26 @@ static int cmd_x(char* args){
 https://nju-projectn.github.io/ics-pa-gitbook/ics2024/1.6.html
 p $eax + 1*/
 static int cmd_p(char* args){
-  Log("args :%s", args);
+  //Log("args :%s", args);
   if(args == NULL) { puts("No arguments"); return 0;}
-  char *str1=args, *saveptr=args;
+  char *str1, *saveptr=args;
   do{
-    //Log(">>>>> While str1 :%s, saveptr :%s",str1?str1:"NULL",saveptr?saveptr:"NULL");
     if(saveptr[0] == '\"'){
       str1 = strtok_r(NULL, "\"", &saveptr);
-      Log("if(str1[0] == \"\\\") Str1 :%s, saveptr :%s",str1,saveptr);
-      //saveptr += *saveptr == '\0' ? 0 : 1;
-      if(*saveptr != '\0'){
-        saveptr++;
-        Log(">> += \\1");
-      }
-      else {
-        Log(">> += \\0");
-      }
+      //Log("if(str1[0] == \"\\\") Str1 :%s, saveptr :%s",str1,saveptr);
+      saveptr += *saveptr == '\0' ? 0 : 1; //跳过后面的空格，但又不至于在最后一个字符后面越界
     }else{
       str1 = strtok_r(NULL, " ", &saveptr);
-      Log("else: Str1 :%s, saveptr :%s",str1,saveptr);
+      //Log("else: Str1 :%s, saveptr :%s",str1,saveptr);
     }
-    printf("%s\n",str1);
+    //printf("%s\n",str1);
+    bool success = true;
+    int64_t result = expr(str1, &success);
+    if(success == false)puts("Invalid expression");
+    else printf("HEX :%#"PRIx64", DEC :%"PRId64"\n", result, result);
+    //else printf("HEX :%#lx, DEC :%#ld\n", result, result);
   }while(str1 != NULL && *saveptr != '\0');
   
-  //bool success = true;
   return 0;
 }
 
