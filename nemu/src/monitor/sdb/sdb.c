@@ -134,10 +134,16 @@ p $eax + 1*/
 static int cmd_p(char* args){
   Log("args = %s", args);
   if(args == NULL) { puts("No arguments"); return 0;}
-  char *str1;//, *str2, *str3, *str4;
-  char *saveptr;
-  str1 = strtok_r(args, "\"", &saveptr); //处理用双引号括起来的表达式
-  Log("Str1 :%s Saveptr :%s", str1, saveptr);
+  char * saveptr;
+  char * str1 = strtok_r(args, " ", &saveptr);
+  do{
+    if(str1[0] == '\"'){
+      str1 = strtok_r(NULL, "\"", &saveptr);
+      Log("if(str1[0] == \"\\\") :Str1 = %s", str1);
+    }else{
+      Log("else: Str1 = %s", str1);
+    }
+  }while((str1 = strtok_r(NULL, " ", &saveptr)) != NULL);
   
   //bool success = true;
   return 0;
