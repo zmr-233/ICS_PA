@@ -185,12 +185,13 @@ static int getMainOp(int p, int q, bool* success){
     if(tokens[i].type == '(') {
       Log("Skip left bracket at %d",i);
       int cnt = 1; i++;//跳过当前括号
-      while(cnt){
-        i++;
+      while(cnt && i<=q){
         if(tokens[i].type == '(') cnt++; 
         else if(tokens[i].type == ')') cnt--;
+        i++;
       } 
-      //i--; //修正位置
+      //i++; //修正位置
+      continue; //避免在处理括号后用cur_prio影响到op_prio
     }
     else if(tokens[i].type == ')') {
       Log("Error: Unmatched right bracket at %d",i);
