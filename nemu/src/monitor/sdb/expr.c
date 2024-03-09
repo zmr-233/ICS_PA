@@ -215,7 +215,7 @@ int64_t str2int64(char *s, bool *success, int base){
   IFDEF(str2int64Log, Log("str2int64() tmp :%"PRId64,tmp));
   return tmp;
 }
-
+#define getMainOpLog 1
 static int getMainOp(int p, int q, bool* success){
   IFDEF(getMainOpLog, Log("GetMainOp() p: %d, q: %d",p,q));
   int op = -1, op_prio = __INT_MAX__, cur_prio = 0;
