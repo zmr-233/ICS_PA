@@ -18,6 +18,9 @@
 
 #include <common.h>
 
-word_t expr(char *e, bool *success);
+int64_t expr(char *e, bool *success);
+/*
+罪魁祸首: int64_t但是是以word_t返回的!!!
+*/
 
 #endif
