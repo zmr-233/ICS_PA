@@ -140,7 +140,7 @@ static int cmd_p(char* args){
     //Log("While str1 :%s, saveptr :%s",str1?str1:"NULL",saveptr?saveptr:"NULL");
     if(saveptr[0] == '\"'){
       str1 = strtok_r(NULL, "\"", &saveptr);
-      //Log("if(str1[0] == \"\\\") Str1 :%s, saveptr :%s",str1,saveptr);
+      Log("if(str1[0] == \"\\\") Str1 :%s, saveptr :%s",str1,saveptr);
     }else{
       str1 = strtok_r(NULL, "\"", &saveptr);
       //Log("else: Str1 :%s, saveptr :%s",str1,saveptr);
