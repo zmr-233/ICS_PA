@@ -20,17 +20,104 @@
  */
 #include <regex.h>
 #include <errno.h>
+#include<ctype.h>
+#include"sdb.h"
+
+//将字符串转换为数字
+word_t str2word(char *s, int *success, int base){
+  errno = 0; char* endptr; word_t tmp;
+  /*if(s[0] == '0' && s[1] == 'x') 
+    tmp = MUXDEF(CONFIG_ISA64, strtoull(s, &endptr, 16), strtoul(s, &endptr, 16));
+  else 
+    tmp = MUXDEF(CONFIG_ISA64, strtoull(s, &endptr, 10), strtoul(s, &endptr, 10));
+    */
+  tmp = MUXDEF(CONFIG_ISA64, strtoull(s, &endptr, base), strtoul(s, &endptr, base));
+  if(errno != 0) {*success = false; Log("Error: errno = %d",errno); errno = 0; 
+    /*是否需要*/return 0;}
+  if(endptr==s) {*success = false; Log("Error: No digits were found!");return 0;}
+  if(*endptr != '\0') Log("Warning: Further characters after number: %s",endptr);
+  return tmp;
+}
+sword_t str2sword(char *s, int *success, int base){
+  errno = 0; char* endptr; sword_t tmp;
+  tmp = MUXDEF(CONFIG_ISA64, strtoll(s, &endptr, base), strtol(s, &endptr, base));
+  if(errno != 0) {*success = false; Log("Error: errno = %d",errno); errno = 0; 
+    /*是否需要*/return 0;}
+  if(endptr==s) {*success = false; Log("Error: No digits were found!");return 0;}
+  if(*endptr != '\0') Log("Warning: Further characters after number: %s",endptr);
+  return tmp;
+}
+
+static int64_t str2int64(char *s, int *success, int base){
+  errno = 0; char* endptr; int64_t tmp;
+  tmp = strtoll(s, &endptr, base);
+  if(errno != 0) {*success = false; Log("Error: errno = %d",errno); errno = 0; 
+    /*是否需要*/return 0;}
+  if(endptr==s) {*success = false; Log("Error: No digits were found!");return 0;}
+  if(*endptr != '\0') Log("Warning: Further characters after number: %s",endptr);
+  IFDEF(str2int64Log, Log("str2int64() tmp :%"PRId64,tmp));
+  return tmp;
+}
+
+//将名称转换为枚举--->注意:str必须是严格的int*之类，不能有括号
+static TypeEnum name2enum(char *str){
+#define NAME2ENUM(name, enumName,...)\
+if(strcmp(str,name)==0) return enumName;
+    FOR_NAME_ENUM(NAME2ENUM)
+    return TK_UNTYPE;
+}
+
+//将枚举转换为名称
+static TypeEnum enum2byte(TypeEnum e){
+#define ID2BYTE(name, id, enumName, Type, Format, len...) case id: return len;
+  switch(e){
+    FOR_ENUM_TYPE(ID2BYTE)
+    case TK_UNTYPE:
+    default:
+      return 0;
+  };
+  return 0;
+}
+
+//将(  int  * )
+static void typeStr2TypeName(char * str){
+    char tmp[32];
+    int j=0,inside=0;
+    for(int i=1;i<=strlen(str)-2;i++){
+        if(!inside && isspace(str[i])) continue;
+        else if(inside && isspace(str[i]))
+            inside = 2;
+        else if(inside == 2 && str[i]=='*'){
+           tmp[j++]='*';
+            break;
+        }
+        else if(inside == 2){
+            tmp[j++]=' ';
+            tmp[j++]=str[i];
+            inside = 1;
+        }
+        else{
+            inside = 1;
+            tmp[j++]=str[i];
+        }
+    }
+    tmp[j]='\0';
+    memcpy(str,tmp,j+1);
+    return ;
+}
+
 
 enum {
   TK_NOTYPE = 256, 
   TK_NEG, //负号
-  TK_REF,TK_REFL, //解引用
+  TK_REF,//TK_REFL, //解引用
   TK_AND, //&&
   TK_OR, //||
   TK_EQ, TK_NE, //== !=
   TK_GT, TK_LT, TK_GE, TK_LE, // > < >= <=
-  TK_HEX, TK_DEC, TK_REG, TK_VAR // 16进制数，10进制数，寄存器，变量
-
+  TK_HEX, TK_DEC, TK_REG, TK_VAR, // 16进制数，10进制数，寄存器，变量
+  TK_TYPE, //类型
+  TK_UNKOWN, //未知
 };
 
 static struct rule {
@@ -53,7 +140,8 @@ static struct rule {
   {"\\+", '+'},         // plus
   {"-", '-'},           // sub
   {"/", '/'},           // divide
-  {"\\*\\([a-zA-Z_][a-zA-Z0-9_ ]* *\\*\\)", TK_REFL}, //带类型的解引用
+  //{"\\*\\([a-zA-Z_][a-zA-Z0-9_ ]* *\\*\\)", TK_REFL}, //带类型的解引用
+  {"\\( *[a-zA-Z_][a-zA-Z0-9_ ]* *\\*? *\\)", TK_TYPE}, //类型
   {"\\*", '*'},         // multiply
   {"\\(", '('},         // left bracket
   {"\\)", ')'},         // right bracket
@@ -61,8 +149,12 @@ static struct rule {
   {"[0-9]+", TK_DEC},  // decimal
   {"\\$[a-zA-Z0-9]+", TK_REG}, // register
   {"[a-zA-Z_][a-zA-Z0-9_]*", TK_VAR}, // identifier/variable
+  {".*", TK_UNKOWN}       // unknown
 };
-
+/**
+ * 但是不支持原生类型识别？
+ * 所以说，应该把类型分开处理？
+*/
 #define NR_REGEX ARRLEN(rules)
 
 static regex_t re[NR_REGEX] = {};
@@ -124,7 +216,7 @@ static bool make_token(char *e) {
           case TK_DEC:
           case TK_REG:
           case TK_VAR:
-          case TK_REFL:
+          case TK_TYPE:
           CHECK_NR_TOKEN
             tokens[nr_token].type = rules[i].token_type;
             strncpy(tokens[nr_token].str, substr_start, substr_len);
@@ -168,7 +260,7 @@ static void print_tokens(){
   Log("---------------");
 }
 
-static bool check_parentheses(int p, int q,bool* success){
+static bool check_parentheses(int p, int q,int* success){
   if(tokens[p].type != '(' || tokens[q].type != ')') return false;
   int cnt = 0;
   for(int i=p; i<=q; i++){
@@ -178,43 +270,10 @@ static bool check_parentheses(int p, int q,bool* success){
   }
   return true;
 }
-//将字符串转换为数字
-word_t str2word(char *s, bool *success, int base){
-  errno = 0; char* endptr; word_t tmp;
-  /*if(s[0] == '0' && s[1] == 'x') 
-    tmp = MUXDEF(CONFIG_ISA64, strtoull(s, &endptr, 16), strtoul(s, &endptr, 16));
-  else 
-    tmp = MUXDEF(CONFIG_ISA64, strtoull(s, &endptr, 10), strtoul(s, &endptr, 10));
-    */
-  tmp = MUXDEF(CONFIG_ISA64, strtoull(s, &endptr, base), strtoul(s, &endptr, base));
-  if(errno != 0) {*success = false; Log("Error: errno = %d",errno); errno = 0; 
-    /*是否需要*/return 0;}
-  if(endptr==s) {*success = false; Log("Error: No digits were found!");return 0;}
-  if(*endptr != '\0') Log("Warning: Further characters after number: %s",endptr);
-  return tmp;
-}
-sword_t str2sword(char *s, bool *success, int base){
-  errno = 0; char* endptr; sword_t tmp;
-  tmp = MUXDEF(CONFIG_ISA64, strtoll(s, &endptr, base), strtol(s, &endptr, base));
-  if(errno != 0) {*success = false; Log("Error: errno = %d",errno); errno = 0; 
-    /*是否需要*/return 0;}
-  if(endptr==s) {*success = false; Log("Error: No digits were found!");return 0;}
-  if(*endptr != '\0') Log("Warning: Further characters after number: %s",endptr);
-  return tmp;
-}
 
-int64_t str2int64(char *s, bool *success, int base){
-  errno = 0; char* endptr; int64_t tmp;
-  tmp = strtoll(s, &endptr, base);
-  if(errno != 0) {*success = false; Log("Error: errno = %d",errno); errno = 0; 
-    /*是否需要*/return 0;}
-  if(endptr==s) {*success = false; Log("Error: No digits were found!");return 0;}
-  if(*endptr != '\0') Log("Warning: Further characters after number: %s",endptr);
-  IFDEF(str2int64Log, Log("str2int64() tmp :%"PRId64,tmp));
-  return tmp;
-}
+
 //#define getMainOpLog 1
-static int getMainOp(int p, int q, bool* success){
+static int getMainOp(int p, int q, int* success){
   IFDEF(getMainOpLog, Log("GetMainOp() p: %d, q: %d, success: %d",p,q,success?1:0));
   int op = -1, op_prio = __INT_MAX__, cur_prio = 0;
   for(int i=p; i<=q; i++){
@@ -247,13 +306,12 @@ static int getMainOp(int p, int q, bool* success){
     else if(tokens[i].type == '+' || tokens[i].type == '-') cur_prio = 5;
     else if(tokens[i].type == '*' || tokens[i].type == '/') cur_prio = 6;
     else if(tokens[i].type == TK_NEG 
-    || tokens[i].type == TK_REF
-    || tokens[i].type == TK_REFL) cur_prio = 7;
+    || tokens[i].type == TK_REF) cur_prio = 7;
+    else if(tokens[i].type == TK_TYPE) cur_prio = 8;
     else if(tokens[i].type == TK_DEC 
     || tokens[i].type == TK_HEX 
     || tokens[i].type == TK_REG 
-    || tokens[i].type == TK_VAR) 
-      continue;
+    || tokens[i].type == TK_VAR) continue;
     else {
       Log("Error: Invalid tokens[%d].type:%d",i,tokens[i].type);
       *success = false;
@@ -272,7 +330,7 @@ static int getMainOp(int p, int q, bool* success){
 }
 
 #define evalLog 1
-int64_t eval(int p, int q, bool* success) {
+int64_t eval(int p, int q, int* success) {
   IFDEF(evalLog, Log("Eval() p: %d, q: %d",p,q));
   if (p > q || !*success || p<0 || q>nr_token-1) {
     Log("Error: if (p > q || !*success || p<0 || q>nr_token-1)");
@@ -284,17 +342,21 @@ int64_t eval(int p, int q, bool* success) {
     switch(tokens[p].type){
       case TK_HEX: return str2int64(tokens[p].str, success, 16);
       case TK_DEC: return str2int64(tokens[p].str, success, 10);
-      case TK_REG: return (int64_t)isa_reg_str2val(tokens[p].str, success); //注意:需要分别处理$0和$a0
-      case TK_VAR: *success=false; TODO(); return 0; //TODO:变量的值
+      case TK_REG:
+        bool local_success = true; 
+        int64_t reg = (int64_t)isa_reg_str2val(tokens[p].str, &local_success); //注意:需要分别处理$0和$a0
+        *success = !local_success ? 0 : MUXDEF(CONFIG_ISA64, TK_UINT64, TK_UINT32);
+        return reg;
+      case TK_VAR: 
+        *success=false; 
+        Assert(0,"Error: Unsppoorted variable : %s",tokens[p].str);
+        return 0; //TODO:变量的值--暂不支持
       default: 
         Log("Error: Invalid token type: %d",tokens[p].type); *success=false; return 0;
     }
   }
   else if (check_parentheses(p, q, success) == true) {
     IFDEF(evalLog, Log("else if (check_parentheses(p, q, success) == true)"));
-    /* The expression is surrounded by a matched pair of parentheses.
-     * If that is the case, just throw away the parentheses.
-     */
     return eval(p + 1, q - 1, success);
   }
   else {
@@ -310,9 +372,29 @@ int64_t eval(int p, int q, bool* success) {
       IFDEF(evalLog, Log("Info : return TK_NEG :%"PRId64,neg));
       return neg;
     case TK_REF:
-    case TK_REFL:
-      Assert(0,"TODO() TK_DEREF");
-      break;
+      int64_t pointer = eval(op + 1, q, success);
+      if(!*success) {Log("Error: Bad expression : TK_REF-p"); return 0;}
+      //1.指针范围检查
+      if(CHECK_ADDR(pointer)) { 
+        Log("Address out of range HEX:%#"PRIx64", DEC :%"PRId64"\n",pointer, pointer); 
+        *success = false; return 0;
+      }
+      //2.指针解引用
+      int len = enum2byte(*success);
+      if(len == 0) {Log("Error: Bad expression : TK_REF-len"); *success = false; return 0;}
+      int64_t ref = (int64_t)vaddr_read(pointer, len);
+      IFDEF(evalLog, Log("Info : return TK_REF :%"PRId64,ref));
+      return ref;
+    case TK_TYPE:/*
+      * 问题重重: 没有解决类型的问题
+      */
+      typeStr2TypeName(tokens[op].str);
+      TypeEnum tk_type = name2enum(tokens[op].str);
+      IFDEF(evalLog, Log("Info : return TK_TYPE :%d",tk_type));
+      int64_t tk_type_value = eval(op + 1, q, success);
+      if(!*success) {Log("Error: Bad expression : TK_TYPE-tk_type_value"); return 0;}
+      *success = tk_type;
+      return tk_type_value;
     default: //默认双目运算符
       int64_t val1 = eval(p, op - 1, success);
       //处理短路
@@ -372,7 +454,7 @@ int64_t eval(int p, int q, bool* success) {
 }
 
 //#define exprLog 1
-int64_t expr(char *e, bool *success) {
+int64_t expr(char *e, int *success) {
   IFDEF(exprLog, Log("Expr() e: %s",e));
   if (!make_token(e)) { *success = false;return 0;}
   print_tokens();
@@ -384,6 +466,11 @@ int64_t expr(char *e, bool *success) {
     }
     if(tokens[i].type == '*' && (i==0 || (ptype < 256 && ptype != ')'))){
       tokens[i].type = TK_REF; IFDEF(exprLog, Log("tokens[%d].type = TK_DEREF",i));
+    }
+    if(tokens[i].type == TK_UNKOWN){
+      *success = false;
+      Log("Error: Invalid token[%d].type:%d",i,tokens[i].type);
+      return 0;
     }
   }
   int64_t tmp = eval(0, nr_token-1, success);

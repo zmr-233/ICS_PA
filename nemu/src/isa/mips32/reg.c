@@ -26,6 +26,6 @@ const char *regs[] = {
 void isa_reg_display() {
 }
 
-word_t isa_reg_str2val(const char *s, bool *success) {
+word_t isa_reg_str2val(const char *s, int *success) {
   return 0;
 }

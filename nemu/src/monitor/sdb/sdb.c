@@ -72,19 +72,6 @@ static int cmd_info(char* args){
   return 0;
 }
 
-//为增强进制转换，使用对应宏进行输入输出
-#define HEX_SCWORD MUXDEF(CONFIG_ISA64, "%"PRIx64, "%"PRIx32)
-#define HEX_PRWORD MUXDEF(CONFIG_ISA64, "%#"PRIx64, "%#"PRIx32)
-#define DEC_SCWORD MUXDEF(CONFIG_ISA64, "%"SCNu64, "%"SCNu32)
-#define DEC_PRWORD MUXDEF(CONFIG_ISA64, "%"PRIu64, "%"PRIu32)
-
-#define HEX_SCSWORD MUXDEF(CONFIG_ISA64, "%"PRIx64, "%"PRIx32)
-#define HEX_PRSWORD MUXDEF(CONFIG_ISA64, "%#"PRIx64, "%#"PRIx32)
-#define DEC_SCSWORD MUXDEF(CONFIG_ISA64, "%"SCNd64, "%"SCNd32)
-#define DEC_PRSWORD MUXDEF(CONFIG_ISA64, "%"PRId64, "%"PRId32)
-
-
-
 //6.扫描内存(2)
 /*x N EXPR 求出表达式EXPR的值, 将结果作为起始内存地址
 x 10 $esp 以十六进制形式输出连续的N个4字节*/
@@ -107,14 +94,15 @@ static int cmd_x(char* args){
   
   //根据str2 != str3区分是否需要解析表达式
   int N; sscanf(str1, "%d", &N);
-  bool success = true;  vaddr_t addr = 0;
+  int success = TK_INT64; //现在还用来传递类型了
+  vaddr_t addr = 0;
   if(str2 != str3){
-    sword_t tmpaddr = expr(str3, &success);
-    if(tmpaddr < 0 || tmpaddr > MUXDEF(CONFIG_ISA64, UINT64_MAX, UINT32_MAX)) { 
-      printf("Address out of range HEX:"HEX_PRSWORD", DEC:"DEC_PRSWORD"\n",tmpaddr, tmpaddr); 
+    int64_t result = expr(str3, &success);
+    if(CHECK_ADDR(result)) { 
+      printf("Address out of range HEX:%#"PRIx64", DEC :%"PRId64"\n",result, result); 
       return 0;
     }
-    addr = (vaddr_t)tmpaddr;
+    addr = (vaddr_t)result;
   }
   else sscanf(str2, HEX_SCWORD, &addr); 
   //TODO: 这里如何根据平台不同进行分离是个好问题  ^^^^^^^^^^^^^^^^^^^^
@@ -145,12 +133,33 @@ static int cmd_p(char* args){
       //Log("else: Str1 :%s, saveptr :%s",str1,saveptr);
     }
     //printf("%s\n",str1);
-    bool success = true;
+    int success = TK_INT64; //现在还用来传递类型了
     int64_t result = expr(str1, &success);
     Log("info: result = %"PRId64, result);
-    if(success == false)puts("Invalid expression");
-    else printf("HEX :%#"PRIx64", DEC :%"PRId64"\n", result, result);
-    //else printf("HEX :%#lx, DEC :%ld\n", result, result);
+    switch(success){
+      case false: puts("Invalid expression"); break;
+      case TK_CHAR_P:
+        if(CHECK_ADDR(result)){
+          printf("Address out of range HEX:%#"PRIx64", DEC :%"PRId64"\n",result, result); 
+          break;
+        }
+        Assert(0, "Print char* Not implemented yet");
+        break;
+      case TK_CHAR:
+        if(result < 0 || result > 0xff) { 
+          printf("Char out of range HEX:%#"PRIx64", DEC :%"PRId64"\n",result, result); 
+          break;
+        }
+        printf("%c", (char)result);
+        break;
+      case TK_INT32:
+        printf("TK_INT32| HEX :%#"PRIx32", DEC :%"PRId32"\n", (int32_t)result, (int32_t)result);
+        break;
+      case TK_INT64:
+        printf("TK_INT64| HEX :%#"PRIx64", DEC :%"PRId64"\n", result, result); 
+      default:
+        printf("(default)| HEX :%#"PRIx64", DEC :%"PRId64"\n", result, result);
+    }
   }while(str1 != NULL && *saveptr != '\0');
   
   return 0;
