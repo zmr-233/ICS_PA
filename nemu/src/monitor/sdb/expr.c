@@ -24,16 +24,12 @@
 enum {
   TK_NOTYPE = 256, 
   TK_NEG, //负号
-  TK_DEREF, //解引用
+  TK_REF,TK_REFL, //解引用
   TK_AND, //&&
   TK_OR, //||
   TK_EQ, TK_NE, //== !=
   TK_GT, TK_LT, TK_GE, TK_LE, // > < >= <=
   TK_HEX, TK_DEC, TK_REG, TK_VAR // 16进制数，10进制数，寄存器，变量
-
-  /*解引用放在循环进行
-
-  */
 
 };
 
@@ -56,8 +52,9 @@ static struct rule {
   {">", TK_GT},         // greater than
   {"\\+", '+'},         // plus
   {"-", '-'},           // sub
-  {"\\*", '*'},         // multiply
   {"/", '/'},           // divide
+  {"\\*\\([a-zA-Z_][a-zA-Z0-9_]* *\\*\\)", TK_REFL}, //带类型的解引用
+  {"\\*", '*'},         // multiply
   {"\\(", '('},         // left bracket
   {"\\)", ')'},         // right bracket
   {"0x[0-9a-fA-F]+", TK_HEX}, // hex
@@ -127,6 +124,7 @@ static bool make_token(char *e) {
           case TK_DEC:
           case TK_REG:
           case TK_VAR:
+          case TK_REFL:
           CHECK_NR_TOKEN
             tokens[nr_token].type = rules[i].token_type;
             strncpy(tokens[nr_token].str, substr_start, substr_len);
@@ -248,7 +246,9 @@ static int getMainOp(int p, int q, bool* success){
     || tokens[i].type == TK_LE) cur_prio = 4;
     else if(tokens[i].type == '+' || tokens[i].type == '-') cur_prio = 5;
     else if(tokens[i].type == '*' || tokens[i].type == '/') cur_prio = 6;
-    else if(tokens[i].type == TK_NEG || tokens[i].type == TK_DEREF) cur_prio = 7;
+    else if(tokens[i].type == TK_NEG 
+    || tokens[i].type == TK_REF
+    || tokens[i].type == TK_REFL) cur_prio = 7;
     else if(tokens[i].type == TK_DEC 
     || tokens[i].type == TK_HEX 
     || tokens[i].type == TK_REG 
@@ -309,7 +309,8 @@ int64_t eval(int p, int q, bool* success) {
       if(!*success) {Log("Error: Bad expression : TK_NEG-neg"); return 0;}
       IFDEF(evalLog, Log("Info : return TK_NEG :%"PRId64,neg));
       return neg;
-    case TK_DEREF:
+    case TK_REF:
+    case TK_REFL:
       Assert(TK_REG,"TODO() TK_DEREF");
     default: //默认双目运算符
       int64_t val1 = eval(p, op - 1, success);
@@ -381,7 +382,7 @@ int64_t expr(char *e, bool *success) {
       tokens[i].type = TK_NEG; IFDEF(exprLog, Log("tokens[%d].type = TK_NEG",i));
     }
     if(tokens[i].type == '*' && (i==0 || (ptype < 256 && ptype != ')'))){
-      tokens[i].type = TK_DEREF; IFDEF(exprLog, Log("tokens[%d].type = TK_DEREF",i));
+      tokens[i].type = TK_REF; IFDEF(exprLog, Log("tokens[%d].type = TK_DEREF",i));
     }
   }
   int64_t tmp = eval(0, nr_token-1, success);

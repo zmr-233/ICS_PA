@@ -13,17 +13,19 @@
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
 
-#include "sdb.h"
+#include "sdb.h" //声明了 int64_t expr(char *e, bool *success);
 
 #define NR_WP 32
 
 typedef struct watchpoint {
-  int NO;
-  struct watchpoint *next;
+  int NO; // 观察点的编号
+  struct watchpoint *next; // 下一个观察点 
 
-  /* TODO: Add more members if necessary */
+  char *expr; // 要评估的表达式
+  void* old_val; // 表达式上一次的值---开在堆上
 
 } WP;
+
 
 static WP wp_pool[NR_WP] = {};
 static WP *head = NULL, *free_ = NULL;
