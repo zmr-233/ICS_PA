@@ -382,8 +382,9 @@ int64_t eval(int p, int q, int* success) {
       //2.指针解引用
       int len = enum2byte(*success);
       if(len == 0) {Log("Error: Bad expression : TK_REF-len"); *success = false; return 0;}
+      IFDEF(evalLog, Log("Info :vaddr_read() len :%d, addr :%"PRId64,len,pointer));
       int64_t ref = (int64_t)vaddr_read(pointer, len);
-      IFDEF(evalLog, Log("Info : return TK_REF :%"PRId64,ref));
+      IFDEF(evalLog, Log("Info :ref :%"PRId64,ref));
       return ref;
     case TK_TYPE:/*
       * 问题重重: 没有解决类型的问题
