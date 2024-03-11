@@ -53,7 +53,7 @@ static struct rule {
   {"\\+", '+'},         // plus
   {"-", '-'},           // sub
   {"/", '/'},           // divide
-  {"\\*\\([a-zA-Z_][a-zA-Z0-9_]* *\\*\\)", TK_REFL}, //带类型的解引用
+  {"\\*\\([a-zA-Z_][a-zA-Z0-9_ ]* *\\*\\)", TK_REFL}, //带类型的解引用
   {"\\*", '*'},         // multiply
   {"\\(", '('},         // left bracket
   {"\\)", ')'},         // right bracket
@@ -312,6 +312,7 @@ int64_t eval(int p, int q, bool* success) {
     case TK_REF:
     case TK_REFL:
       Assert(0,"TODO() TK_DEREF");
+      break;
     default: //默认双目运算符
       int64_t val1 = eval(p, op - 1, success);
       //处理短路
