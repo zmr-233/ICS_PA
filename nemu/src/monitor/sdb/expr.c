@@ -311,7 +311,7 @@ int64_t eval(int p, int q, bool* success) {
       return neg;
     case TK_REF:
     case TK_REFL:
-      Assert(TK_REG,"TODO() TK_DEREF");
+      Assert(0,"TODO() TK_DEREF");
     default: //默认双目运算符
       int64_t val1 = eval(p, op - 1, success);
       //处理短路
