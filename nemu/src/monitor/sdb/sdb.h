@@ -120,25 +120,25 @@ word_t vaddr_read(vaddr_t addr, int len);
     DO("int64_t",           17, TK_INT64,            int64_t,            "%" PRId64, sizeof(int64_t)) \
     DO("uint64_t",          18, TK_UINT64,           uint64_t,           "%" PRIu64, sizeof(uint64_t)) \
     \
-    DO("int*",              19, TK_INT_P,            int*,               "%p", POINTER_BYTE) \
-    DO("unsigned int*",     20, TK_UINT_P,           unsigned int*,      "%p", POINTER_BYTE) \
-    DO("short*",            21, TK_SHORT_P,          short*,             "%p", POINTER_BYTE) \
-    DO("unsigned short*",   22, TK_USHORT_P,         unsigned short*,    "%p", POINTER_BYTE) \
-    DO("long*",             23, TK_LONG_P,           long*,              "%p", POINTER_BYTE) \
-    DO("unsigned long*",    24, TK_ULONG_P,          unsigned long*,     "%p", POINTER_BYTE) \
-    DO("long long*",        25, TK_LLONG_P,          long long*,         "%p", POINTER_BYTE) \
-    DO("unsigned long long*",26,TK_ULLONG_P,         unsigned long long*,"%p", POINTER_BYTE) \
-    DO("char*",             27, TK_CHAR_P,           char*,              "%p", POINTER_BYTE) \
-    DO("unsigned char*",    28, TK_UCHAR_P,          unsigned char*,     "%p", POINTER_BYTE) \
-    DO("float*",            29, TK_FLOAT_P,          float*,             "%p", POINTER_BYTE) \
-    DO("double*",           30, TK_DOUBLE_P,         double*,            "%p", POINTER_BYTE) \
-    DO("long double*",      31, TK_LDOUBLE_P,        long double*,       "%p", POINTER_BYTE) \
-    DO("_Bool*",            32, TK_BOOL_P,           _Bool*,             "%p", POINTER_BYTE) \
-    DO("int32_t*",          33, TK_INT32_P,          int32_t*,           "%p", POINTER_BYTE) \
-    DO("uint32_t*",         34, TK_UINT32_P,         uint32_t*,          "%p", POINTER_BYTE) \
-    DO("int64_t*",          35, TK_INT64_P,          int64_t*,           "%p", POINTER_BYTE) \
-    DO("uint64_t*",         36, TK_UINT64_P,         uint64_t*,          "%p", POINTER_BYTE) \
-    DO("void*",             37, TK_VOID_P,           void*,              "%p", POINTER_BYTE)
+    DO("int*",              19, TK_INT_P,            int*,               "%p", sizeof(int)) \
+    DO("unsigned int*",     20, TK_UINT_P,           unsigned int*,      "%p", sizeof(unsigned int)) \
+    DO("short*",            21, TK_SHORT_P,          short*,             "%p", sizeof(short)) \
+    DO("unsigned short*",   22, TK_USHORT_P,         unsigned short*,    "%p", sizeof(unsigned short)) \
+    DO("long*",             23, TK_LONG_P,           long*,              "%p", sizeof(long)) \
+    DO("unsigned long*",    24, TK_ULONG_P,          unsigned long*,     "%p", sizeof(unsigned long)) \
+    DO("long long*",        25, TK_LLONG_P,          long long*,         "%p", sizeof(long long)) \
+    DO("unsigned long long*",26,TK_ULLONG_P,         unsigned long long*,"%p", sizeof(unsigned long long)) \
+    DO("char*",             27, TK_CHAR_P,           char*,              "%p", sizeof(char)) \
+    DO("unsigned char*",    28, TK_UCHAR_P,          unsigned char*,     "%p", sizeof(unsigned char)) \
+    DO("float*",            29, TK_FLOAT_P,          float*,             "%p", sizeof(float)) \
+    DO("double*",           30, TK_DOUBLE_P,         double*,            "%p", sizeof(double)) \
+    DO("long double*",      31, TK_LDOUBLE_P,        long double*,       "%p", sizeof(long double)) \
+    DO("_Bool*",            32, TK_BOOL_P,           _Bool*,             "%p", sizeof(_Bool)) \
+    DO("int32_t*",          33, TK_INT32_P,          int32_t*,           "%p", sizeof(int32_t)) \
+    DO("uint32_t*",         34, TK_UINT32_P,         uint32_t*,          "%p", sizeof(uint32_t)) \
+    DO("int64_t*",          35, TK_INT64_P,          int64_t*,           "%p", sizeof(int64_t)) \
+    DO("uint64_t*",         36, TK_UINT64_P,         uint64_t*,          "%p", sizeof(uint64_t)) \
+    DO("void*",             37, TK_VOID_P,           void*,              "%p", 0)
            
 
 
